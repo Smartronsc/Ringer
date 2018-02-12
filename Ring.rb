@@ -1,10 +1,9 @@
 #!/usr/bin/ruby
 
-require './Controller.rb'
-require './FileManager.rb'
-require './TextProcessor.rb'
 require './UserInterface.rb'
 
-controller = Controller.new
+  # Eclipse Run or Run configuration must specify Ring.rb or the run will terminate
+  # This must be the active tab when the Run button is clicked
 
-controller.start
+@user_processor = UserInterface.new
+@user_processor.send(:user_file?)

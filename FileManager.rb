@@ -1,18 +1,16 @@
 #!/usr/bin/ruby
 
-#  puts Dir.pwd <== shows you where you are running
-
+require './TextProcessor.rb'
 
 class FileManager
-  attr_accessor :handle, :file
 
-  def file_open
- #  puts("in file_open")
-    @handle = File.open("/home/brad/workspace/Ringer/testdata", "r") 
+  def file_open(file)
+    @handle = File.open("#{file}", "r")
+    @text_processor = TextProcessor.new
+    @text_processor.send(:text_handler, @handle) 
   end
 
   def file_close
-#    puts("in file_close")
     @handle.close
   end
     
@@ -26,4 +24,4 @@ class FileManager
     file_in.each { |line| p line }
   end
   
-end # class FileManager
+end 

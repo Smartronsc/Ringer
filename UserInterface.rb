@@ -1,36 +1,31 @@
 #!/usr/bin/ruby
 
+require './FileManager.rb'
+require './TextProcessor.rb'
 require 'io/console'
 
 class UserInterface
-  attr_accessor :handle, :this_one, :these_lines, :text_area
-  
+   
   # use assoc(line number) for line commands
-  def user_initiation
-#   puts("in user_io")
-    @text_area = {}
+  def user_file?
+    puts "File to open /home/brad/git/Ringer/TextProcessor.rb or other: " 
+    selection = gets.chomp
+    selection = "/home/brad/git/Ringer/TextProcessor.rb" if selection == ""
+    @file_processor = FileManager.new
+    @file_processor.send(:file_open, selection)
   end
   # finds non excluded text in the file and excludes it
-  def user_exclusion 
-#   puts("in user_exclusion")
-    @this_one = "Cucumber"
-    puts "String to exclude"
-    open("/proc/self/fd/0",mode="r") {|d| p d }
-#    @this_one = $stdin.gets.chomp 
+  def user_exclude?(text_lines) 
+    puts "String not to exclude: "
+    exclude = gets.chomp 
+    exclude = "line" if exclude == ""
+    @text_processor = TextProcessor.new
+    @text_processor.send(:text_exclude, exclude, text_lines)
   end
-  # finds text in the file and includes it if excluded
-  def user_inclusion 
-#   puts("in user_inclusion")
-    @these_lines = [9,20]
-    open("/proc/self/fd/0",mode="r") {|d| p d }
-#    @this_one = $stdin.gets.chomp 
-  end
-  
   
   def user_display(text_area)
-#   puts("in user_display")
-    puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====7====5====8====5====9====5====0====5====1====5====2====5====3=="
-    @text_area.each do |line, action|
+    puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="
+    text_area.each do |line, action|
       if action[0] == "before" 
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ---------------------------------------------------"
       end 
@@ -42,6 +37,31 @@ class UserInterface
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------"
       end 
     end 
+    user_options(text_area)
   end
-  
+
+  def user_options(text_area)
+    puts <<-DELIMITER
+    1. Find additional
+    2. Delete all excluded
+    3. Delete all not excluded
+      DELIMITER
+    selection = gets.chomp              
+
+    case selection
+      when "1"
+      puts("Under development")
+      p @handle
+      @text_processor = TextProcessor.new
+      @text_processor.send(:text_handler, @handle) 
+      when "2"
+      puts("Not available yet")
+      when "3"
+      puts("Not available yet")
+      else
+      puts("Exiting")
+       exit
+    end
+  end
+
 end # class UserInterface
