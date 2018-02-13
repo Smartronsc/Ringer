@@ -10,15 +10,19 @@ class UserInterface
   def user_file?
     puts "File to open /home/brad/git/Ringer/TextProcessor.rb or other: " 
     selection = gets.chomp
+    file = "/home/brad/git/Ringer/TextProcessor.rb"
     selection = "/home/brad/git/Ringer/TextProcessor.rb" if selection == ""
+    $display_map = DisplayMap.new("#{file}")
     @file_processor = FileManager.new
-    @file_processor.send(:file_open, selection)
+    @file_processor.send(:file_open, file)
   end
   # finds non excluded text in the file and excludes it
   def user_exclude?(text_lines) 
     puts "String not to exclude: "
     exclude = gets.chomp 
-    exclude = "line" if exclude == ""
+    exclude = "exclude" if exclude == ""
+    $display_map[:excluded_values] = exclude
+#    puts $display_map.to_a.inspect
     @text_processor = TextProcessor.new
     @text_processor.send(:text_exclude, exclude, text_lines)
   end
@@ -47,11 +51,12 @@ class UserInterface
     3. Delete all not excluded
       DELIMITER
     selection = gets.chomp              
-
+    selection = "1"
     case selection
       when "1"
-      puts("Under development")
-      p @handle
+      puts("Under development, need to mixing the last display with the next")   
+      @file_processor = FileManager.new
+      @file_processor.send(:file_open, $display_map[:file_name])
       @text_processor = TextProcessor.new
       @text_processor.send(:text_handler, @handle) 
       when "2"
