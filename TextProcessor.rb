@@ -2,6 +2,7 @@
 
 class TextProcessor
   
+  
   # this sets up the flat file to be fed in to the exclusion logic
   def text_handler(handle, *text_area)
     text_lines = {}
@@ -16,7 +17,6 @@ class TextProcessor
   
   # this builds a hash table of excluded lines
   def text_exclude(exclude, text_lines)
-    $memory_map   = {}                                                  # display memory map
     text_area     = {}
     exclude_count =  0
     line_number   = -1
