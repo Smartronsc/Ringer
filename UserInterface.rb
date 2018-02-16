@@ -1,57 +1,77 @@
+#!/usr/bin/ruby
+
+require './FileManager.rb'
+
 class UserInterface
-   
-  require './FileManager.rb'
- 
+
   def user_options(text_area)
     puts <<-DELIMITER
-    1. Include additional text
-    2. Delete all excluded
-    3. Delete all not excluded
+    1. Include additional search pattern
+    2. Delete all excluded text
+    3. Delete all not excluded text\n
       DELIMITER
-    selection = gets.chomp              
-#    selection = "1"
-    case selection
-      when "1"
-#      puts("Under development, need to mixin the last display with the next")  
-      @file_processor = FileManager.new
-      current_file = @file_processor.send(:file_history_current)                      # get the current file as it closed 
-      @file_processor = FileManager.new
-      @file_processor.send(:file_open, current_file)                                  # reopen it
-      @text_processor = TextProcessor.new
-      @text_processor.send(:text_handler, @handle)                                    # re-read in the lines from the file     
-      when "2"
-      puts("Not available yet")
-             exit
-      when "3"
-      puts("Not available yet")
-             exit
-      else
-      puts("Exiting")
-       exit
+    ARGF.each do |selection|
+      selection.chomp!             
+  
+      case selection
+        when "1"
+          @file_processor = FileManager.new
+          current_file = @file_processor.send(:file_history_current)                      # get the current file as it closed 
+          arguements = [current_file, "exclude"]
+          @file_processor = FileManager.new
+          @file_processor.send(:file_open, *arguements)                                   # reopen it  
+        when "2"
+          @file_processor = FileManager.new
+          current_file = @file_processor.send(:file_history_current)                      # get the current file
+          arguements = [current_file, "deletex"]                                          # delete all excluded lines
+          @file_processor = FileManager.new
+          @file_processor.send(:file_open, *arguements)                                   # reopen it
+        when "3"
+          @file_processor = FileManager.new
+          current_file = @file_processor.send(:file_history_current)                      # get the current file
+          arguements = [current_file, "deletenx"]                                         # delete all not excluded lines
+          @file_processor = FileManager.new
+          @file_processor.send(:file_open, *arguements)                                   # reopen it
+          else
+        puts("Exiting")
+        exit
+      end
     end
   end
- 
+  
   # use assoc(line number) for line commands
   def user_file?
-#    puts "File to open gem all.rb or other: " 
-    puts "File to open /home/brad/git/Ringer/TextProcessor.rb or other: " 
-    file = gets.chomp
-#    file = "gem all.rb"
-    file = "/home/brad/git/Ringer/TextProcessor.rb" if file == ""
-#    file = "gem all.rb" if file == nil
-    @file_processor = FileManager.new
-    @file_processor.send(:file_open, file) 
+    puts "File to open /home/brad/git/Ringer/testdata.rb or other:\n"    
+    ARGF.each do |file|
+      file.chomp!
+      file = "/home/brad/git/Ringer/testdata.rb" if file == "" || file == nil          # default for development
+      arguements = [file, "initial"]
+      @file_processor = FileManager.new
+      @file_processor.send(:file_open, *arguements) 
+    end
+   end
+   
+   # what do you what to look for?
+   def user_exclude?(text_lines) 
+     puts "Pattern to find in a line:\n "
+     ARGF.each do |pattern|
+       pattern.chomp!
+       pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""          # default for development
+       # save this search pattern the next unused search history entry
+       search_history = $search_history.to_h
+       search_history.each_pair do |index, search_pattern|
+         if search_pattern == ""
+           search_pattern = pattern
+           $search_history["#{index}"] = "#{search_pattern}"
+           break
+         end
+       end
+       @text_processor = TextProcessor.new
+       @text_processor.send(:text_exclude, pattern, text_lines)
+     end
   end
-  # finds non excluded text in the file and excludes it
-  def user_exclude?(text_lines) 
-    puts "String not to exclude: "
-    exclude = gets.chomp
-    exclude = 'if /#{Regexp.escape(exclude)}/.match(text)' if exclude == ""
-    @text_processor = TextProcessor.new
-    @text_processor.send(:text_exclude, exclude, text_lines)
-  end
-  
- def user_display(text_area)
+    
+  def user_display(text_area)
     puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="
     text_area.each do |line, action|
       if action[0] == "before" 
@@ -67,6 +87,5 @@ class UserInterface
     end 
     user_options(text_area)
   end
-
 
 end # class UserInterface

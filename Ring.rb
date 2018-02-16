@@ -2,6 +2,7 @@
 
 require './UserInterface.rb'
 require 'ostruct'
+require 'ostruct'
 
   # Eclipse Run or Run configuration must specify Ring.rb or the run will terminate
   # This must be the active tab when the Run button is clicked
