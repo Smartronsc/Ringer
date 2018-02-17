@@ -19,27 +19,15 @@ class FileManager
       when "deletex"
         @text_processor = TextProcessor.new
         @text_processor.send(:text_deletex, @handle)
-      when "deletenx"                                   
+      when "deletenx"                                  
         @text_processor = TextProcessor.new
-        @text_processor.send(:text_deletenx, @handle)                                   
-    end
+        @text_processor.send(:text_deletenx, @handle)
+      end
   end
- 
+
   # Nothing really gets closed as yet 
   def file_close
     @handle.close
-  end
-  
-  # Future use 
-  def file_print(results)
-    puts("in file_print for #{results}")
-  end
-  
-  # Future use 
-  def file_print_all
-    puts("in file_all")
-    file_in = @handle.readlines
-    file_in.each { |line| p line }
   end
   
   # Keeps the current working file available
@@ -75,5 +63,5 @@ class FileManager
       return file_name unless file_name == ""
     end
   end
- 
- end # End of class FileManager
+
+end # End of class FileManager
