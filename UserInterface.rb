@@ -1,9 +1,26 @@
-#!/usr/bin/ruby
-
-require './FileManager.rb'
 
 class UserInterface
 
+  # use assoc(line number) for line commands
+  
+  def user_file
+    puts "File to open /home/brad/git/Ringer/testdata.rb or other:\n" 
+    ARGF.each_line do |file|
+      @file = file.chomp!                                                     
+      @file = "/home/brad/git/Ringer/testdata.rb" if file == ""               # default for development
+      arguments = [@file]
+      @file_manager = FileManager.new
+      @file_manager.send(:file_history_push, *arguments)                      # store it for UserInterface class 
+      break                                                                   # just one file at a time for now
+    end
+    user_pattern                                                              # update search_history
+    arguments = [@file]
+    @file_manager = FileManager.new
+    text_lines = @file_manager.send(:file_open, *arguments)                   # initial open
+    @text_processor = TextProcessor.new
+    @text_processor.send(:text_exclude, text_lines)                           # initial exclude                                              
+  end
+  
   def user_options(text_area)
     puts <<-DELIMITER
     1. Include additional search pattern
@@ -12,68 +29,40 @@ class UserInterface
     4. Write! to file\n
       DELIMITER
     ARGF.each do |selection|
-      selection.chomp!            
-  
-      case selection
-        when "1"
-          @file_manager = FileManager.new
-          current_file = @file_manager.send(:file_history_current)                    # get the current file as it closed
-          arguments = [current_file, "exclude"]
-          @file_manager = FileManager.new
-          @file_manager.send(:file_open, *arguments)                                  # open it  
-        when "2"
-          @file_manager = FileManager.new
-          current_file = @file_manager.send(:file_history_current)                    # get the current file
-          arguments = [current_file, "deletex"]                                          # delete all excluded lines
-          @file_manager = FileManager.new
-          @file_manager.send(:file_open, *arguments)                                  # open it
-        when "3"
-          @file_manager = FileManager.new
-          current_file = @file_manager.send(:file_history_current)                    # get the current file
-          arguments = [current_file, "deletenx"]                                        # delete all not excluded lines
-          @file_manager = FileManager.new
-          @file_manager.send(:file_open, *arguments)                                  # open it
-        when "4"
-          user_write!    
-        else
-        puts("Exiting")
-        exit
-      end
+      @selection = selection.chomp!                                                           
+      break
+    end
+    case @selection
+      when "1"
+        user_pattern                                                           # update search_history 
+        @file_manager = FileManager.new
+        current_file = @file_manager.send(:file_history_current)               # get the current file
+        @file_manager = FileManager.new
+        text_lines = @file_manager.send(:file_open, current_file)              # open it 
+        @text_processor = TextProcessor.new
+        @text_processor.send(:text_exclude, text_lines)                        # additional excludes   
+      when "2"
+        @file_manager = FileManager.new
+        current_file = @file_manager.send(:file_history_current)               # get the current file
+        @file_manager = FileManager.new
+        text_lines = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor = TextProcessor.new
+        @text_processor.send(:text_deletex, text_lines)                        # delete all excluded lines   
+      when "3"
+        @file_manager = FileManager.new
+        current_file = @file_manager.send(:file_history_current)               # get the current file
+        @file_manager = FileManager.new
+        text_lines = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor = TextProcessor.new
+        @text_processor.send(:text_deletenx, text_lines)                       # delete all non excluded lines  
+      when "4"
+        user_write!    
+      else
+      puts("Exiting")
+      exit
     end
   end
   
-  # use assoc(line number) for line commands
-  def user_file?
-    puts "File to open /home/brad/git/Ringer/testdata.rb or other:\n" 
-    ARGF.each do |file|
-      file.chomp!
-      file = "/home/brad/git/Ringer/testdata.rb" if file == "" || file == nil          # default for development
-      arguments = [file, "initial"]
-      @file_manager = FileManager.new
-      @file_manager.send(:file_open, *arguments) 
-    end
-  end
-  
-  # what do you what to look for?
-  def user_exclude?(text_lines) 
-  puts "Pattern to find in a line:\n "
-  ARGF.each do |pattern|
-      pattern.chomp!
-      pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""          # default for development
-      # save this search pattern the next unused search history entry
-      search_history = $search_history.to_h
-      search_history.each_pair do |index, search_pattern|
-        if search_pattern == ""
-          search_pattern = pattern
-          $search_history["#{index}"] = "#{search_pattern}"
-          break
-        end
-      end
-      @text_processor = TextProcessor.new
-      @text_processor.send(:text_exclude, pattern, text_lines)
-    end
-  end
-    
   def user_display(text_area)
     puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="
     text_area.each do |line, action|
@@ -93,6 +82,23 @@ class UserInterface
 
   def user_write!
     puts "in user_write!" 
+  end
+  
+  def user_pattern
+    puts "Pattern to find in a line:\n "
+    ARGF.each_line do |pattern|
+      @pattern = pattern.chomp!                                                 
+      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""  # default for development
+        break                                                                   # just one pattern at a time for now
+    end
+    # save this search pattern in the next unused search history entry
+    search_history = $search_history.to_h
+    search_history.each_pair do |index, pattern|
+      if pattern == ""                                                      # wait for next open slot
+        $search_history["#{index}"] = "#{@pattern}"                         # store it for TextProcessor class 
+        break
+      end
+    end
   end
   
 end # class UserInterface

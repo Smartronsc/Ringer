@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 
 require './UserInterface.rb'
+require './TextProcessor.rb'
+require './FileManager.rb'
 require 'ostruct'
 
   # Eclipse Run or Run configuration must specify Ring.rb or the run will terminate
@@ -11,4 +13,4 @@ $file_history = OpenStruct.new(:file01 => "", :file02 => "", :file03 => "", :fil
 # set up control structure for search strings
 $search_history = OpenStruct.new(:search01 => "", :search02 => "", :search03 => "", :search04 => "", :search05 => "", :search06 => "", :search07 => "", :search08 => "", :search09 => "")
 @user_interface = UserInterface.new
-@user_interface.send(:user_file?)
+@user_interface.send(:user_file)

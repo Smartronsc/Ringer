@@ -1,28 +1,15 @@
-#!/usr/bin/ruby
-
-require './TextProcessor.rb'
 
 class FileManager
 
   # Opens any given file either from the default file, console input or history
-  def file_open(file, function)
-    @handle = File.open("#{file}", "r")
-    case function
-      when "initial"
-        file_history_push(file)
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_handler, @handle) 
-      when "exclude"
-        file_history_push(file)
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_handler, @handle) 
-      when "deletex"
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_deletex, @handle)
-      when "deletenx"                                  
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_deletenx, @handle)
-      end
+  def file_open(file)
+    handle = File.open("#{file}", "r")
+    text_lines = {}
+    file_in = handle.readlines
+    file_in.each_with_index do |line, line_num|
+      text_lines[line_num] = line.chomp
+    end
+    return text_lines
   end
 
   # Nothing really gets closed as yet 
@@ -60,6 +47,7 @@ class FileManager
   def file_history_current
     file_history = $file_history.to_h
     file_history.each_pair do |index, file_name|
+      p file_name
       return file_name unless file_name == ""
     end
   end
