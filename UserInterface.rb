@@ -2,22 +2,24 @@
 class UserInterface
 
   # use assoc(line number) for line commands
+  def initialize
+    @file_manager   = FileManager.new 
+    @text_processor = TextProcessor.new
+  end
   
   def user_file
-    puts "File to open /home/brad/git/Ringer/testdata.rb or other:\n" 
+    @file_manager.send(:file_get_information) 
+    puts "File to open or enter to select from file system:\n" 
     ARGF.each_line do |file|
-      @file = file.chomp!                                                     
-      @file = "/home/brad/git/Ringer/testdata.rb" if file == ""               # default for development
-      arguments = [@file]
-      @file_manager = FileManager.new
-      @file_manager.send(:file_history_push, *arguments)                      # store it for UserInterface class 
+      @file = file.chomp!  
+#      user_selection if @file == "" 
+      @file = "/home/brad/git/Ringer/testdata.rb" if file == ""           
+      @file_manager.send(:file_history_push, @file)                           # store it for UserInterface class 
       break                                                                   # just one file at a time for now
-    end
+   end
     user_pattern                                                              # update search_history
     arguments = [@file]
-    @file_manager = FileManager.new
     text_lines = @file_manager.send(:file_open, *arguments)                   # initial open
-    @text_processor = TextProcessor.new
     @text_processor.send(:text_exclude, text_lines)                           # initial exclude                                              
   end
   
@@ -26,7 +28,7 @@ class UserInterface
     1. Include additional search pattern
     2. Delete all excluded text
     3. Delete all not excluded text
-    4. Write! to file\n
+    4. Write to file\n
       DELIMITER
     ARGF.each do |selection|
       @selection = selection.chomp!                                                           
@@ -35,28 +37,19 @@ class UserInterface
     case @selection
       when "1"
         user_pattern                                                           # update search_history 
-        @file_manager = FileManager.new
         current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it 
-        @text_processor = TextProcessor.new
+        text_lines   = @file_manager.send(:file_open, current_file)            # open it 
         @text_processor.send(:text_exclude, text_lines)                        # additional excludes   
       when "2"
-        @file_manager = FileManager.new
         current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor = TextProcessor.new
+        text_lines   = @file_manager.send(:file_open, current_file)            # open it
         @text_processor.send(:text_deletex, text_lines)                        # delete all excluded lines   
       when "3"
-        @file_manager = FileManager.new
         current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor = TextProcessor.new
+        text_lines   = @file_manager.send(:file_open, current_file)            # open it
         @text_processor.send(:text_deletenx, text_lines)                       # delete all non excluded lines  
       when "4"
-        user_write!    
+        user_write    
       else
       puts("Exiting")
       exit
@@ -80,8 +73,8 @@ class UserInterface
     user_options(text_area)
   end
 
-  def user_write!
-    puts "in user_write!" 
+  def user_write
+    puts "in user_write" 
   end
   
   def user_pattern
@@ -99,6 +92,30 @@ class UserInterface
         break
       end
     end
+  end
+  
+  def user_selection
+    key    = "root"
+    index  = 0
+    number = 0
+    table  = {}
+    puts "Select a folder\n"
+    puts "#{index} #{key}"   
+    table.store(index, key)
+    $file_information.each_key do |key| 
+      unless key == ""
+        index += 1
+        puts "#{index} #{key}"
+        table.store(index, key)
+      end  
+    end
+    ARGF.each_line do |selection|
+      number = selection.chomp!.to_i
+      break if (1..index).include?(number.to_i) 
+    end
+    folder_name = table.fetch(number) 
+    file = $file_information.fetch(folder_name)
+    p file
   end
   
 end # class UserInterface

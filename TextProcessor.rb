@@ -3,6 +3,7 @@ class TextProcessor
   
   # this builds a hash table of excluded lines
   def text_exclude(text_lines)
+    @user_interface = UserInterface.new
     text_area    = {}
     exclude_count =  0
     line_number  = -1
@@ -35,11 +36,11 @@ class TextProcessor
     text_area.delete(last_line)                                      # remove last data line    
     text_area.store(last_line, ["text", last_text])                  # add last line of text                   
     text_area.store(last_line+1, ["after", exclude_count])           # and wrap it up!
-    @user_interface = UserInterface.new
     @user_interface.send(:user_display, text_area)
   end
   
   def text_deletex(text_lines)
+    @user_interface = UserInterface.new
     text_area  = {}
     found = false    
     text_lines.each do |line_num, text|                               # read the file line by line
@@ -49,11 +50,11 @@ class TextProcessor
       text_area.store(line_num+1, ["text", text]) if found            # write out this line            
       found = false
     end  
-    @user_interface = UserInterface.new
     @user_interface.send(:user_display, text_area)
   end
   
   def text_deletenx(text_lines)
+    @user_interface = UserInterface.new
     text_area  = {}
     not_found = true    
     text_lines.each do |line_num, text|                                # read the file line by line
@@ -63,7 +64,6 @@ class TextProcessor
       text_area.store(line_num+1, ["text", text]) if not_found         # write out this line if not found
       not_found = true
     end  
-    @user_interface = UserInterface.new
     @user_interface.send(:user_display, text_area)
   end
 

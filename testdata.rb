@@ -36,7 +36,7 @@ class UserInterface
     case @selection
       when "1"
         user_pattern                                                           # update search_history 
-        @file_manager = FileManager.new
+#        @file_manager = FileManager.new
         current_file = @file_manager.send(:file_history_current)               # get the current file
         @file_manager = FileManager.new
         text_lines = @file_manager.send(:file_open, current_file)              # open it 

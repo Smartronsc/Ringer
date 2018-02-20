@@ -1,6 +1,31 @@
 
 class FileManager
-
+ 
+  def file_get_information(branch = ENV["HOME"])
+    $file_information = {}
+    @files = []
+    @directory = ""
+    branch_split = branch.split('/')
+    branch_split.each do |directory|
+      @directory = directory
+      if directory == "home" || directory == ""
+        Dir.chdir("/#{directory}")  
+        Dir.foreach("/#{directory}") do |d| 
+          @files.push(d) unless d == "." || d == ".." 
+        end
+        $file_information.store(@directory, @files)
+        @files = []
+      else
+        Dir.chdir("/home/#{directory}")  
+        Dir.foreach("/home/#{directory}") do |d| 
+          @files.push(d) unless d == "." || d == ".." 
+        end  
+        $file_information.store(@directory, @files)
+        @files = []
+      end
+    end 
+  end
+  
   # Opens any given file either from the default file, console input or history
   def file_open(file)
     handle = File.open("#{file}", "r")
