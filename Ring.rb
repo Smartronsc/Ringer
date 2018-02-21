@@ -2,6 +2,7 @@
 
 require './UserInterface.rb'
 require './TextProcessor.rb'
+
 require './FileManager.rb'
 require 'ostruct'
 
