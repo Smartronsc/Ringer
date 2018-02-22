@@ -2,38 +2,53 @@
 class FileManager
   
   # set up the data collection for  UserInterface::user_selection
-  def file_get_initialization(directories = ENV["HOME"])              # this is linux specific for now
-    $file_information = {}                                            # have this available ecerywhere
-    @files = []                                                       # this is for each folders files
-    @directory = ""                                                   # this is for / (root) /home and others
-    directory = directories.split('/')
-    directory.each do |directory|
-      @directory = directory
-      if directory == "home" || directory == ""
-        Dir.chdir("/#{directory}")                                    # take care of root and home  
-        Dir.foreach("/#{directory}") { |d|  @files.push(d) unless d == "." || d == ".." }     
-        @directory = "root" if directory == ""                        # normalizes for user_selection
-        $file_information.store(@directory, @files)
-        @files = []
+  def file_get_initialization(structure = ENV["HOME"])                # this is linux specific for now
+    $file_information = {}                                            # have this available everywhere
+    files = [] 
+    directory = ""
+    directories = []                                                  
+    things = structure.split('/')
+    things.each do |thing|
+      if thing == ""
+        directories.push("/root")
       else
-        Dir.chdir("/home/#{directory}")                               # do the rest of the folders 
-        Dir.foreach("/home/#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
-        $file_information.store(@directory, @files)
-        @files = []
+        directory = "#{directory}/#{thing}" 
+        directories.push("#{directory}") if File.directory?("#{directory}")
       end
     end 
+    return directories
   end
     
-  # this does data collection for  UserInterface::user_selection  
+  def file_get_files(directories) 
+    file_information = {"/home" => ["none"]}
+    directory = ""
+    files = []
+     p "file_get_files directories #{directories}"
+    directories.each do |directory| 
+      unless directory == "/root"
+        Dir.chdir("#{directory}")  
+        Dir.foreach("#{directory}") do |d|  
+          files.push(d) unless d == "." || d == ".." 
+           p "file_get_files directories #{directories}"
+        end
+        file_information.store(directory, files)
+         p "file_get_files file_information #{file_information}"
+        files = []
+      end
+      return file_information
+  end
+    # p "file_information #{file_information}"
+    return file_information
+  end
+      
   def file_get_information(directory) 
-    @files = []                                                       # this is for each folders files                                                  
-    Dir.chdir("#{directory}")                                         # do the rest of the folders 
+    @files = []                                                      
+    Dir.chdir("#{directory}")                                        
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
     $file_information.store(directory, @files)
     @files = []
   end
   
-  # Opens any given file either from the default file, console input or history
   def file_open(file, mode = "r")
     handle = File.open("#{file}")
     text_lines = {}
@@ -85,9 +100,9 @@ class FileManager
   def file_history_current
     file_history = $file_history.to_h
     file_history.each_pair do |index, file_name|
-      p file_name
+      p "file_name #{file_name}"
       return file_name unless file_name == ""
     end
   end
-
-end # End of class FileManager
+    
+end # class FileManager
