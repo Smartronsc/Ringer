@@ -3,7 +3,8 @@ class FileManager
   
   # set up the data collection for  UserInterface::user_selection
   def file_get_initialization(structure = ENV["HOME"])                # this is linux specific for now
-    $file_information = {}                                            # have this available everywhere
+    @file_information = {}                                            # {"/directory"=>["file"], "/directory/directory"=>["file", "file"]
+    @current_directory = "" 
     files = [] 
     directory = ""
     directories = []                                                  
@@ -13,44 +14,53 @@ class FileManager
         directories.push("/root")
       else
         directory = "#{directory}/#{thing}" 
+        @current_directory = directory
+        #puts "17 #{directory}"
         directories.push("#{directory}") if File.directory?("#{directory}")
       end
     end 
+    #puts "21 #{directories}"
     return directories
   end
     
   def file_get_files(directories) 
-    file_information = {"/home" => ["none"]}
+#    @file_information = {"/home" => ["none"]}
     directory = ""
     files = []
-     p "file_get_files directories #{directories}"
+    #puts "26 directories #{directories}"
     directories.each do |directory| 
       unless directory == "/root"
         Dir.chdir("#{directory}")  
         Dir.foreach("#{directory}") do |d|  
+          #puts "31 directory #{directory}"
           files.push(d) unless d == "." || d == ".." 
-           p "file_get_files directories #{directories}"
         end
-        file_information.store(directory, files)
-         p "file_get_files file_information #{file_information}"
+        @file_information.store(directory, files)
+        #puts "36 @file_information #{@file_information}"
         files = []
       end
-      return file_information
-  end
-    # p "file_information #{file_information}"
-    return file_information
+    end
+    #p "40 @file_information #{@file_information}"
+    return @file_information
   end
       
-  def file_get_information(directory) 
-    @files = []                                                      
-    Dir.chdir("#{directory}")                                        
-    Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
-    $file_information.store(directory, @files)
+  def file_get_more_information(directory) 
     @files = []
+    @file_information.clear
+    directory = "#{@current_directory}/#{directory}"
+    #puts "50 directory #{directory}" 
+    @current_directory = directory                                                    
+    Dir.chdir("#{directory}") 
+    puts "Now in directory: #{directory}"                                      
+    Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
+    @file_information.store(directory, @files)
+    @files = []
+    #puts "54 @file_information #{@file_information}"
+    return @file_information
   end
   
   def file_open(file, mode = "r")
-    handle = File.open("#{file}")
+    handle = File.open("#{file}","#{mode}")
     text_lines = {}
     file_in = handle.readlines
     file_in.each_with_index do |line, line_num|
@@ -60,13 +70,12 @@ class FileManager
   end
 
 # Writes any given file
-  def file_write(file, text_area)
-    handle = File.open("#{file}")
-    text_area.each_line { |line| handle.write(line) }
+  def file_write(file, text_area, mode = "w")  
+    handle = File.open("#{file}","#{mode}")
+    text_area.each_pair { |index,text_paired| handle.write("#{text_paired[1]}\n") }
   end
 
-  # Nothing really gets closed as yet 
-  def file_close
+  def file_close(file)
     @handle.close
   end
   
