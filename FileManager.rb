@@ -1,4 +1,3 @@
-
 class FileManager
   
   # set up the data collection for  UserInterface::user_selection
@@ -19,43 +18,35 @@ class FileManager
         directories.push("#{directory}") if File.directory?("#{directory}")
       end
     end 
-    #puts "21 #{directories}"
     return directories
   end
     
   def file_get_files(directories) 
-#    @file_information = {"/home" => ["none"]}
     directory = ""
     files = []
-    #puts "26 directories #{directories}"
     directories.each do |directory| 
       unless directory == "/root"
         Dir.chdir("#{directory}")  
         Dir.foreach("#{directory}") do |d|  
-          #puts "31 directory #{directory}"
           files.push(d) unless d == "." || d == ".." 
         end
         @file_information.store(directory, files)
-        #puts "36 @file_information #{@file_information}"
         files = []
       end
     end
-    #p "40 @file_information #{@file_information}"
     return @file_information
   end
       
   def file_get_more_information(directory) 
     @files = []
     @file_information.clear
-    directory = "#{@current_directory}/#{directory}"
-    #puts "50 directory #{directory}" 
+    directory = "#{@current_directory}/#{directory}" 
     @current_directory = directory                                                    
     Dir.chdir("#{directory}") 
     puts "Now in directory: #{directory}"                                      
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
     @file_information.store(directory, @files)
     @files = []
-    #puts "54 @file_information #{@file_information}"
     return @file_information
   end
   
@@ -70,9 +61,10 @@ class FileManager
   end
 
 # Writes any given file
-  def file_write(file, text_area, mode = "w")  
+  def file_write(file, text_area, mode = "w") 
     handle = File.open("#{file}","#{mode}")
     text_area.each_pair { |index,text_paired| handle.write("#{text_paired[1]}\n") }
+    file_close(file)
   end
 
   def file_close(file)
@@ -109,7 +101,6 @@ class FileManager
   def file_history_current
     file_history = $file_history.to_h
     file_history.each_pair do |index, file_name|
-      p "file_name #{file_name}"
       return file_name unless file_name == ""
     end
   end

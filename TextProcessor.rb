@@ -1,4 +1,3 @@
-
 class TextProcessor
   
   # this builds a hash table of excluded lines
