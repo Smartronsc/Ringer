@@ -14,7 +14,6 @@ class FileManager
       else
         directory = "#{directory}/#{thing}" 
         @current_directory = directory
-        #puts "17 #{directory}"
         directories.push("#{directory}") if File.directory?("#{directory}")
       end
     end 
@@ -42,8 +41,7 @@ class FileManager
     @file_information.clear
     directory = "#{@current_directory}/#{directory}" 
     @current_directory = directory                                                    
-    Dir.chdir("#{directory}") 
-    puts "Now in directory: #{directory}"                                      
+    Dir.chdir("#{directory}")                                      
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
     @file_information.store(directory, @files)
     @files = []
@@ -62,9 +60,18 @@ class FileManager
 
 # Writes any given file
   def file_write(file, text_area, mode = "w") 
-    handle = File.open("#{file}","#{mode}")
-    text_area.each_pair { |index,text_paired| handle.write("#{text_paired[1]}\n") }
-    file_close(file)
+    if File.writable?(file)
+      handle = File.open("#{file}","#{mode}")
+      text_area.each_pair do |index,text_paired|  
+        if text_paired[0] == "text" 
+          handle.write("#{text_paired[1]}\n") 
+        end
+      end
+    else
+      puts "Not authorized to write in the folder"
+      return false
+    end
+#    file_close(file)
   end
 
   def file_close(file)

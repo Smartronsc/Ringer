@@ -51,10 +51,17 @@ class UserInterface
     file_information.each_pair do |directory, files|
       if files.length > 1
         ui.store(index, directory)                                          # the internal UI
+        puts "Now in directory: #{directory}" 
         files.each do |file| 
-          puts "#{index} #{file}" 
-          ui.store(index, file) 
-          index += 1
+          unless file.start_with?(".")
+            if File.directory?(file)
+              puts "#{index} #{file}"
+            else
+              puts "  #{index} #{file}"
+            end
+            ui.store(index, file) 
+            index += 1
+          end
         end
       end
     end
@@ -118,15 +125,17 @@ class UserInterface
       DELIMITER
     ARGF.each do |selection|
       @selection = selection.chomp! 
-      case @choice 
+      case @choice                                                              # @choice actually runs after @selection 
         when "3"
           @path = "#{@path}/#{@selection}"
           arguments = [@path, @text_area, "w"]
-          @file_manager.send(:file_write, *arguments)    
+          result = @file_manager.send(:file_write, *arguments)  
+          user_prompt_write unless result                                       # write failed (no permission?)   
         when "4"
           @path = "#{@home}/#{@selection}"
-          arguments = [@home, @text_area, "w"]
-          @file_manager.send(:file_write, *arguments)    
+          arguments = [@path, @text_area, "w"]
+          result = @file_manager.send(:file_write, *arguments)
+          user_prompt_write unless result                                       # write failed (no permission?)    
       end
       case @selection
         when "1"                                                                # overwrite the same file
@@ -143,7 +152,6 @@ class UserInterface
       # these are the controls for the ARGF loop
       break unless ("1".."4").include?(@selection)                            # break if a line of text is read in   
       break if @selection == 1 || @selection == 2                             # break as file is already set
-      p @selection
     end
     exit
   end
@@ -183,5 +191,4 @@ class UserInterface
       end
     end
   end
-
 end # class UserInterface
