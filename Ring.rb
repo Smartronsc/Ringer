@@ -15,4 +15,3 @@ $search_history = OpenStruct.new(:search01 => "", :search02 => "", :search03 => 
 prompt = "Enter file to open or enter to select from file system:\n"
 @user_interface = UserInterface.new
 @user_interface.send(:user_prompt, prompt, "read")
-

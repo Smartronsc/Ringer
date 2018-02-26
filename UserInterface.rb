@@ -78,7 +78,8 @@ class UserInterface
     1. Include additional search pattern
     2. Delete all excluded text
     3. Delete all not excluded text
-    4. Write to file\n
+    4. Range functions
+    5. Write to file\n
       DELIMITER
     ARGF.each do |selection|
       @selection = selection.chomp!                                                          
@@ -99,6 +100,8 @@ class UserInterface
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
         @text_processor.send(:text_deletenx, text_lines)                      # delete all non excluded lines  
       when "4"
+        user_ranges(text_area, text_lines)    
+      when "5"
         path = user_prompt_write   
       else
       puts("Exiting")
@@ -179,16 +182,88 @@ class UserInterface
     puts "Pattern to find in a line:\n "
     ARGF.each_line do |pattern|
       @pattern = pattern.chomp!                                                
-      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""  # default for development
-      break                                                                    # just one pattern at a time for now
+#      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""   # default for development
+      @pattern = 'lines' if pattern == ""  # default for development
+      break                                                                       # just one pattern at a time for now
     end
     # save this search pattern in the next unused search history entry
     search_history = $search_history.to_h
     search_history.each_pair do |index, pattern|
-      if pattern == ""                                                    # wait for next open slot
-        $search_history["#{index}"] = "#{@pattern}"                        # store it for TextProcessor class 
+      if pattern == ""                                                            # wait for next open slot
+        $search_history["#{index}"] = "#{@pattern}"                               # store it for TextProcessor class 
         break
       end
     end
   end
+  
+  def user_ranges(text_area, text_lines)
+    puts <<-DELIMITER
+    1. Select lines to be included
+    2. Exclude additional lines
+    3. Delete lines shown or excluded
+    4. Insert lines
+    5. Copy lines 
+    6. Move lines
+    
+    Type your selection, a range or a single number amount with an "after" location
+
+    For example 1 5..12 range to include or 1 7 5 the 7 lines after line 5
+    Enter 6 10 0 or 6 10..20 0 to move lines 10 to 20 before line 1\n
+      DELIMITER
+    index = 1
+    ARGF.each do |selection|
+      selection = selection.chomp!
+      selection_split = selection.split(" ")  
+      selection_split.each do |n|                                                     # check for range indicated
+        if n.include?("...")                                                          # range given?  
+          range_split = n.split("..")                                                 # yes, split it for first and last
+          selection_split[1] = range_split[0]                                    
+          selection_split[2] = range_split[1] - "1"                                        
+        else
+          if n.include?("..")                                                         # range given?  
+            range_split = n.split("..")                                               # yes, split it for first and last
+            selection_split[1] = range_split[0]                                    
+            selection_split[2] = range_split[1] 
+          end                                        
+        end
+      end
+      if selection_split.length < 3                                                   # check length entered
+        puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
+        user_ranges(text_area, text_lines)                                                        # ask again for input
+      end
+      @selection = selection_split.shift
+      @arguments = selection_split                                                        
+      break
+    end
+    case @selection
+      when "1"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it 
+        @text_processor.send(:text_include, text_area, text_lines, @arguments)  # additional includes  
+      when "2"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor.send(:text_excludea, text_area, text_lines, @arguments) # additional excludes  
+      when "3"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor.send(:text_deletesx, text_area, text_lines, @arguments) # delete some lines 
+      when "4"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor.send(:text_insert, text_area, text_lines, @arguments)   # insert some lines 
+      when "5"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor.send(:text_copy, text_area, text_lines, @arguments)     # copy some lines 
+      when "6"
+        current_file = @file_manager.send(:file_history_current)                # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)              # open it
+        @text_processor.send(:text_move, text_area, text_lines, @arguments)     # move some lines 
+      else
+      puts("Exiting")
+      exit
+    end
+  end
+  
 end # class UserInterface
