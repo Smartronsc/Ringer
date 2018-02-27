@@ -214,56 +214,33 @@ class UserInterface
     ARGF.each do |selection|
       selection = selection.chomp!
       selection_split = selection.split(" ")  
-      selection_split.each do |n|                                                     # check for range indicated
-        if n.include?("...")                                                          # range given?  
-          range_split = n.split("..")                                                 # yes, split it for first and last
+      selection_split.each do |s|                                                     # check for range indicated
+        if s.include?("...")                                                          # range given?  
+          range_split = s.split("..")                                                 # yes, split it for first and last
           selection_split[1] = range_split[0]                                    
-          selection_split[2] = range_split[1] - "1"                                        
-        else
-          if n.include?("..")                                                         # range given?  
-            range_split = n.split("..")                                               # yes, split it for first and last
-            selection_split[1] = range_split[0]                                    
-            selection_split[2] = range_split[1] 
-          end                                        
+          selection_split[2] = range_split[1] - "1"   
+        end                                     
+        if s.include?("..")                                                         # range given?  
+          range_split = s.split("..")                                               # yes, split it for first and last
+          selection_split[1] = range_split[0]                                    
+          selection_split[2] = range_split[1] 
         end
       end
+      unless selection.match('\.')
+        selection_split[2] = selection_split[1].to_i + selection_split[2].to_i
+        selection_split[1].to_s
+        selection_split[2].to_s                                       
+      end
+
       if selection_split.length < 3                                                   # check length entered
         puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
         user_ranges(text_area, text_lines)                                                        # ask again for input
       end
-      @selection = selection_split.shift
-      @arguments = selection_split                                                        
+#      @selection = selection_split.shift
+      @arguments = selection_split                                                      
       break
     end
-    case @selection
-      when "1"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it 
-        @text_processor.send(:text_include, text_area, text_lines, @arguments)  # additional includes  
-      when "2"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor.send(:text_excludea, text_area, text_lines, @arguments) # additional excludes  
-      when "3"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor.send(:text_deletesx, text_area, text_lines, @arguments) # delete some lines 
-      when "4"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor.send(:text_insert, text_area, text_lines, @arguments)   # insert some lines 
-      when "5"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor.send(:text_copy, text_area, text_lines, @arguments)     # copy some lines 
-      when "6"
-        current_file = @file_manager.send(:file_history_current)                # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor.send(:text_move, text_area, text_lines, @arguments)     # move some lines 
-      else
-      puts("Exiting")
-      exit
-    end
+    @text_processor.send(:text_mixer, text_area, text_lines, @arguments)
   end
   
 end # class UserInterface
