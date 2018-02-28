@@ -1,70 +1,167 @@
-#!/usr/bin/ruby
-
 class UserInterface
 
   # use assoc(line number) for line commands
-  
-  def user_file
-    puts "File to open /home/brad/git/Ringer/testdata.rb or other:\n" 
-    ARGF.each_line do |file|
-      @file = file.chomp!                                                     
-      @file = "/home/brad/git/Ringer/testdata.rb" if file == ""               # default for development
-      arguments = [@file]
-      @file_manager = FileManager.new
-      @file_manager.send(:file_history_push, *arguments)                      # store it for UserInterface class 
-      break                                                                   # just one file at a time for now
-    end
-    user_pattern                                                              # update search_history
-    arguments = [@file]
-    @file_manager = FileManager.new
-    text_lines = @file_manager.send(:file_open, *arguments)                   # initial open
+  def initialize
+    @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
-    @text_processor.send(:text_exclude, text_lines)                           # initial exclude                                              
+    @file = ""                                                              # gets built by user_prompt
   end
   
+  def user_prompt(prompt, function)
+    puts prompt                                                              # initial prompt 
+    selection = ""
+    file_information = {}
+    ARGF.each_line do |file|
+      @file = file.chomp!                                                  
+      if @file == ""
+        # initial load of $file_information dealing with / (root) and /home
+        directories = @file_manager.send(:file_get_initialization)
+        file_information = @file_manager.send(:file_get_files, directories) 
+        selection = user_selection(file_information)
+      end
+      break
+    end
+    while File.directory?(selection)
+      @file_manager.send(:file_get_more_information, selection) 
+      selection = user_selection(file_information)
+      unless File.directory?(selection)
+        break
+      end
+    end
+    file_information.each do |directory,files|
+      files.each { |file| @file = "#{directory}/#{file.to_s}" if file == selection }
+    end
+    @file_manager.send(:file_history_push, @file)                          # store it for UserInterface class  
+    if function == "read"
+      user_pattern                                                        # update search_history
+      arguments = [@file, "r"]
+      text_lines = @file_manager.send(:file_open, *arguments)              # open for read
+      @text_processor.send(:text_exclude, text_lines)                      # exclude 
+      return @file
+    end
+  end 
+  
+  def user_selection(file_information, *function)
+    key        = "root"                                                    # linux support only for now
+    file_break = ""                                                        # save for "break"
+    index      = 0                                                          # for user selection
+    number    = 0                                                          # for selection from table  
+    ui        = {} 
+    # build display for user selection
+    file_information.each_pair do |directory, files|
+      if files.length > 1
+        ui.store(index, directory)                                          # the internal UI
+        puts "Now in directory: #{directory}" 
+        files.each do |file| 
+          unless file.start_with?(".")
+            if File.directory?(file)
+              puts "#{index} #{file}"
+            else
+              puts "  #{index} #{file}"
+            end
+            ui.store(index, file) 
+            index += 1
+          end
+        end
+      end
+    end
+    # parse user selection
+    ARGF.each_line do |selection|                                          
+      number = selection.chomp!.to_i
+      break if (0..index).include?(number.to_i)                            # index reused from above  
+    end
+    selection = ui[number]                                                  # get selection from UI table 
+  end
+
   def user_options(text_area)
     puts <<-DELIMITER
     1. Include additional search pattern
     2. Delete all excluded text
     3. Delete all not excluded text
-    4. Write! to file\n
+    4. Range functions
+    5. Write to file\n
       DELIMITER
     ARGF.each do |selection|
-      @selection = selection.chomp!                                                           
+      @selection = selection.chomp!                                                          
       break
     end
     case @selection
       when "1"
-        user_pattern                                                           # update search_history 
-#        @file_manager = FileManager.new
-        current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it 
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_exclude, text_lines)                        # additional excludes   
+        user_pattern                                                          # update search_history 
+        current_file = @file_manager.send(:file_history_current)              # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)            # open it 
+        @text_processor.send(:text_exclude, text_lines)                        # additional excludes  
       when "2"
-        @file_manager = FileManager.new
-        current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_deletex, text_lines)                        # delete all excluded lines   
+        current_file = @file_manager.send(:file_history_current)              # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)            # open it
+        @text_processor.send(:text_deletex, text_lines)                        # delete all excluded lines  
       when "3"
-        @file_manager = FileManager.new
-        current_file = @file_manager.send(:file_history_current)               # get the current file
-        @file_manager = FileManager.new
-        text_lines = @file_manager.send(:file_open, current_file)              # open it
-        @text_processor = TextProcessor.new
-        @text_processor.send(:text_deletenx, text_lines)                       # delete all non excluded lines  
+        current_file = @file_manager.send(:file_history_current)              # get the current file
+        text_lines  = @file_manager.send(:file_open, current_file)            # open it
+        @text_processor.send(:text_deletenx, text_lines)                      # delete all non excluded lines  
       when "4"
-        user_write!    
+        user_ranges(text_area, text_lines)    
+      when "5"
+        path = user_prompt_write  
       else
       puts("Exiting")
       exit
     end
   end
   
+  def user_prompt_write
+    @choice = ""
+    @path  = ""
+    current_file = @file_manager.send(:file_history_current)                  # get the current file
+    @file = current_file
+    path_split = current_file.split("/")
+    path_split.pop
+    path_split.each do |d|
+      @path = "#{@path}/#{d}" unless d == "" 
+    end 
+    @home = "/#{path_split.slice!(1)}"                                        # ignore root
+      puts <<-DELIMITER
+    1. Overwrite: #{@file}
+    2. Append:    #{@file} 
+    3. New file:  #{@path} 
+    4. New path:  #{@home}\n 
+      DELIMITER
+    ARGF.each do |selection|
+      @selection = selection.chomp! 
+      case @choice                                                              # @choice actually runs after @selection 
+        when "3"
+          @path = "#{@path}/#{@selection}"
+          arguments = [@path, @text_area, "w"]
+          result = @file_manager.send(:file_write, *arguments)  
+          user_prompt_write unless result                                      # write failed (no permission?)  
+        when "4"
+          @path = "#{@home}/#{@selection}"
+          arguments = [@path, @text_area, "w"]
+          result = @file_manager.send(:file_write, *arguments)
+          user_prompt_write unless result                                      # write failed (no permission?)    
+      end
+      case @selection
+        when "1"                                                                # overwrite the same file
+          arguments = [@file, @text_area, "w"]
+          @file_manager.send(:file_write, *arguments)            
+        when "2"                                                                # append to the same file
+          arguments = [@file, @text_area, "a"]
+          @file_manager.send(:file_write, *arguments)    
+        when "3"
+          @choice = "3"                                                        # still need to ask for file name  
+        when "4"
+          @choice = "4"                                                        # still need to ask for path and file name
+      end
+      # these are the controls for the ARGF loop
+      break unless ("1".."4").include?(@selection)                            # break if a line of text is read in  
+      break if @selection == 1 || @selection == 2                            # break as file is already set
+    end
+    exit
+  end
+  # the first entry in to the utility ends up here
+  # all the other functions also end up here since this is a visual tool
   def user_display(text_area)
+    @text_area = text_area                                                  # save for user_write
     puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="
     text_area.each do |line, action|
       if action[0] == "before" 
@@ -81,167 +178,68 @@ class UserInterface
     user_options(text_area)
   end
 
-  def user_write!
-    puts "in user_write!" 
-  end
-  
   def user_pattern
     puts "Pattern to find in a line:\n "
     ARGF.each_line do |pattern|
-      @pattern = pattern.chomp!                                                 
-      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""  # default for development
-        break                                                                   # just one pattern at a time for now
+      @pattern = pattern.chomp!                                                
+#      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""  # default for development
+      @pattern = 'lines' if pattern == ""  # default for development
+      break                                                                      # just one pattern at a time for now
     end
     # save this search pattern in the next unused search history entry
     search_history = $search_history.to_h
     search_history.each_pair do |index, pattern|
-      if pattern == ""                                                      # wait for next open slot
-        $search_history["#{index}"] = "#{@pattern}"                         # store it for TextProcessor class 
+      if pattern == ""                                                            # wait for next open slot
+        $search_history["#{index}"] = "#{@pattern}"                              # store it for TextProcessor class 
         break
       end
     end
+  end
+  
+  def user_ranges(text_area, text_lines)
+    puts <<-DELIMITER
+    1. Select lines to be included
+    2. Exclude additional lines
+    3. Delete lines shown or excluded
+    4. Insert lines
+    5. Copy lines 
+    6. Move lines
+    
+    Type your selection, a range or a single number amount with an "after" location
+    For example 1 5..12 range to include or 1 7 5 the 7 lines after line 5
+    Enter 6 10 0 or 6 10..20 0 to move lines 10 to 20 before line 1\n
+      DELIMITER
+    index = 1
+    ARGF.each do |selection|
+      selection = selection.chomp!
+      selection_split = selection.split(" ")  
+      selection_split.each do |s|                                                    # check for range indicated
+        if s.include?("...")                                                          # range given?  
+          range_split = s.split("..")                                                # yes, split it for first and last
+          selection_split[1] = range_split[0]                                    
+          selection_split[2] = range_split[1] - "1"  
+        end                                    
+        if s.include?("..")                                                        # range given?  
+          range_split = s.split("..")                                              # yes, split it for first and last
+          selection_split[1] = range_split[0]                                    
+          selection_split[2] = range_split[1] 
+        end
+      end
+      unless selection.match('\.')
+        selection_split[2] = selection_split[1].to_i + selection_split[2].to_i
+        selection_split[1].to_s
+        selection_split[2].to_s                                      
+      end
+
+      if selection_split.length < 3                                                  # check length entered
+        puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
+        user_ranges(text_area, text_lines)                                                        # ask again for input
+      end
+
+      @arguments = selection_split                                                      
+      break
+    end
+    @text_processor.send(:text_mixer, text_area, @arguments)
   end
   
 end # class UserInterface
-
-class TextProcessor
-  
-  # this builds a hash table of excluded lines
-  def text_exclude(text_lines)
-    text_area    = {}
-    exclude_count =  0
-    line_number  = -1
-    last_line    = -1
-    last_text    = ""
-    found        = false 
-    after        = false   
-    text_lines.each do |line_num, text|                              # read the file line by line
-      $search_history.to_h.each_pair do |symbol, pattern|            # get the current search patterns
-        @pattern = pattern unless pattern == ""                      # formal argument cannot be an instance variable
-        found = true if /#{Regexp.escape(pattern)}/.match(text) unless pattern == ""
-      end
-      if found                                                       # is it what is being looked for?
-        if exclude_count > 0                                         # yes, only looked at this line?
-          text_area.store(line_num, ["before", exclude_count])       # no, write out excluded line count
-        end                                                          # end of if exclude_count > 0
-        text_area.store(line_num+1, ["text", text])                  # write out this line
-        line_number  = line_num                                      # expand scope beyond @text_lines.each do
-        last_line    = line_num+1                                    # save for end of file processing
-        last_text    = text                                          # save for end of file processing
-        exclude_count = 0                                            # no lines have been excluded yet
-      end 
-      exclude_count += 1 unless found                                # if no match in this line
-      found = false
-  end
-    if exclude_count > 0 
-      puts "#{line_number} excluded #{exclude_count} trailing"
-      text_area.store(line_number+1, ["after", exclude_count])
-    end
-    text_area.delete(last_line)                                      # remove last data line    
-    text_area.store(last_line, ["text", last_text])                  # add last line of text                   
-    text_area.store(last_line+1, ["after", exclude_count])           # and wrap it up!
-    @user_interface = UserInterface.new
-    @user_interface.send(:user_display, text_area)
-  end
-  
-  def text_deletex(text_lines)
-    text_area  = {}
-    found = false    
-    text_lines.each do |line_num, text|                               # read the file line by line
-      $search_history.to_h.each_pair do |symbol, pattern|             # get the current search patterns
-        found = true if /#{Regexp.escape(pattern)}/.match(text) unless pattern == ""
-      end
-      text_area.store(line_num+1, ["text", text]) if found            # write out this line            
-      found = false
-    end  
-    @user_interface = UserInterface.new
-    @user_interface.send(:user_display, text_area)
-  end
-  
-  def text_deletenx(text_lines)
-    text_area  = {}
-    not_found = true    
-    text_lines.each do |line_num, text|                                # read the file line by line
-      $search_history.to_h.each_pair do |symbol, pattern|              # get the current search patterns
-        not_found = false if /#{Regexp.escape(pattern)}/.match(text) unless pattern == ""
-      end
-      text_area.store(line_num+1, ["text", text]) if not_found         # write out this line if not found
-      not_found = true
-    end  
-    @user_interface = UserInterface.new
-    @user_interface.send(:user_display, text_area)
-  end
-
-end # class TextProcessor
-
-class FileManager
-
-  # Opens any given file either from the default file, console input or history
-  def file_open(file)
-    handle = File.open("#{file}", "r")
-    text_lines = {}
-    file_in = handle.readlines
-    file_in.each_with_index do |line, line_num|
-      text_lines[line_num] = line.chomp
-    end
-    return text_lines
-  end
-
-  # Nothing really gets closed as yet 
-  def file_close
-    @handle.close
-  end
-  
-  # Keeps the current working file available
-  # Currently file history is only one deep
-  def file_history_push(file)
-    file_history = $file_history.to_h
-    file_history.each_pair do |index, file_name|
-      if file_name == ""
-        file_name = file
-        $file_history["#{index}"] = "#{file_name}"
-        break
-      end
-    end
-  end
-  
-  # Not in use
-  # Needs to be tested
-  def file_history_pop(file)
-    file_history = $file_history.to_h
-    current_history = file_history.pop
-    file_history.each_pair do |index, file_name|
-      if file_name == current_history
-        $file_history.delete_field("#{index}")
-        break
-      end
-    end
-  end
-  
-  # lots of possible uses for this but right now current is current
-  def file_history_current
-    file_history = $file_history.to_h
-    file_history.each_pair do |index, file_name|
-      p file_name
-      return file_name unless file_name == ""
-    end
-  end
-
-end # End of class FileManager
-
-
-
-require './UserInterface.rb'
-require './TextProcessor.rb'
-require './FileManager.rb'
-require 'ostruct'
-
-  # Eclipse Run or Run configuration must specify Ring.rb or the run will terminate
-  # This must be the active tab when the Run button is clicked
-
-# set up control structure for file names
-$file_history = OpenStruct.new(:file01 => "", :file02 => "", :file03 => "", :file04 => "", :file05 => "", :file06 => "", :file07 => "", :file08 => "", :file09 => "")
-# set up control structure for search strings
-$search_history = OpenStruct.new(:search01 => "", :search02 => "", :search03 => "", :search04 => "", :search05 => "", :search06 => "", :search07 => "", :search08 => "", :search09 => "")
-@user_interface = UserInterface.new
-@user_interface.send(:user_file)

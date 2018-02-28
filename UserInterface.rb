@@ -4,7 +4,7 @@ class UserInterface
   def initialize
     @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
-    @file = ""                                                               # gets built by user_prompt
+    @file = ""                                                              # gets built by user_prompt
   end
   
   def user_prompt(prompt, function)
@@ -12,7 +12,7 @@ class UserInterface
     selection = ""
     file_information = {}
     ARGF.each_line do |file|
-      @file = file.chomp!                                                   
+      @file = file.chomp!                                                  
       if @file == ""
         # initial load of $file_information dealing with / (root) and /home
         directories = @file_manager.send(:file_get_initialization)
@@ -102,7 +102,7 @@ class UserInterface
       when "4"
         user_ranges(text_area, text_lines)    
       when "5"
-        path = user_prompt_write   
+        path = user_prompt_write  
       else
       puts("Exiting")
       exit
@@ -111,7 +111,7 @@ class UserInterface
   
   def user_prompt_write
     @choice = ""
-    @path   = ""
+    @path  = ""
     current_file = @file_manager.send(:file_history_current)                  # get the current file
     @file = current_file
     path_split = current_file.split("/")
@@ -133,12 +133,12 @@ class UserInterface
           @path = "#{@path}/#{@selection}"
           arguments = [@path, @text_area, "w"]
           result = @file_manager.send(:file_write, *arguments)  
-          user_prompt_write unless result                                       # write failed (no permission?)   
+          user_prompt_write unless result                                      # write failed (no permission?)  
         when "4"
           @path = "#{@home}/#{@selection}"
           arguments = [@path, @text_area, "w"]
           result = @file_manager.send(:file_write, *arguments)
-          user_prompt_write unless result                                       # write failed (no permission?)    
+          user_prompt_write unless result                                      # write failed (no permission?)    
       end
       case @selection
         when "1"                                                                # overwrite the same file
@@ -148,13 +148,13 @@ class UserInterface
           arguments = [@file, @text_area, "a"]
           @file_manager.send(:file_write, *arguments)    
         when "3"
-          @choice = "3"                                                         # still need to ask for file name  
+          @choice = "3"                                                        # still need to ask for file name  
         when "4"
-          @choice = "4"                                                         # still need to ask for path and file name
+          @choice = "4"                                                        # still need to ask for path and file name
       end
       # these are the controls for the ARGF loop
-      break unless ("1".."4").include?(@selection)                            # break if a line of text is read in   
-      break if @selection == 1 || @selection == 2                             # break as file is already set
+      break unless ("1".."4").include?(@selection)                            # break if a line of text is read in  
+      break if @selection == 1 || @selection == 2                            # break as file is already set
     end
     exit
   end
@@ -182,15 +182,15 @@ class UserInterface
     puts "Pattern to find in a line:\n "
     ARGF.each_line do |pattern|
       @pattern = pattern.chomp!                                                
-#      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""   # default for development
+#      @pattern = 'if /#{Regexp.escape(exclude)}/.match(text)' if pattern == ""  # default for development
       @pattern = 'lines' if pattern == ""  # default for development
-      break                                                                       # just one pattern at a time for now
+      break                                                                      # just one pattern at a time for now
     end
     # save this search pattern in the next unused search history entry
     search_history = $search_history.to_h
     search_history.each_pair do |index, pattern|
       if pattern == ""                                                            # wait for next open slot
-        $search_history["#{index}"] = "#{@pattern}"                               # store it for TextProcessor class 
+        $search_history["#{index}"] = "#{@pattern}"                              # store it for TextProcessor class 
         break
       end
     end
@@ -206,7 +206,6 @@ class UserInterface
     6. Move lines
     
     Type your selection, a range or a single number amount with an "after" location
-
     For example 1 5..12 range to include or 1 7 5 the 7 lines after line 5
     Enter 6 10 0 or 6 10..20 0 to move lines 10 to 20 before line 1\n
       DELIMITER
@@ -214,14 +213,14 @@ class UserInterface
     ARGF.each do |selection|
       selection = selection.chomp!
       selection_split = selection.split(" ")  
-      selection_split.each do |s|                                                     # check for range indicated
+      selection_split.each do |s|                                                    # check for range indicated
         if s.include?("...")                                                          # range given?  
-          range_split = s.split("..")                                                 # yes, split it for first and last
+          range_split = s.split("...")                                                # yes, split it for first and last
           selection_split[1] = range_split[0]                                    
-          selection_split[2] = range_split[1] - "1"   
-        end                                     
-        if s.include?("..")                                                         # range given?  
-          range_split = s.split("..")                                               # yes, split it for first and last
+          selection_split[2] = range_split[1] - "1"  
+        end                                    
+        if s.include?("..")                                                        # range given?  
+          range_split = s.split("..")                                              # yes, split it for first and last
           selection_split[1] = range_split[0]                                    
           selection_split[2] = range_split[1] 
         end
@@ -229,18 +228,18 @@ class UserInterface
       unless selection.match('\.')
         selection_split[2] = selection_split[1].to_i + selection_split[2].to_i
         selection_split[1].to_s
-        selection_split[2].to_s                                       
+        selection_split[2].to_s                                      
       end
 
-      if selection_split.length < 3                                                   # check length entered
+      if selection_split.length < 3                                                  # check length entered
         puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
         user_ranges(text_area, text_lines)                                                        # ask again for input
       end
-#      @selection = selection_split.shift
+
       @arguments = selection_split                                                      
       break
     end
-    @text_processor.send(:text_mixer, text_area, text_lines, @arguments)
+    @text_processor.send(:text_mixer, text_area, @arguments)
   end
   
 end # class UserInterface
