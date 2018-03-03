@@ -1,6 +1,6 @@
 class FileManager
   
-  # set up the data collection for  UserInterface::user_selection
+  # set up the data collection
   def file_get_initialization(structure = ENV["HOME"])                # this is linux specific for now
     @file_information = {}                                            # {"/directory"=>["file"], "/directory/directory"=>["file", "file"]
     @current_directory = "" 
@@ -45,6 +45,7 @@ class FileManager
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
     @file_information.store(directory, @files)
     @files = []
+    p "1 @file_information #{@file_information}"
     return @file_information
   end
   
@@ -111,5 +112,61 @@ class FileManager
       return file_name unless file_name == ""
     end
   end
-    
+  # A file directory has been presented and a selection made.
+  # * Now it is necessary to determine if the selection is a file or another directory.
+  # * This method runs recursively until a file is the selection.
+  # * It then records the file in history and returns the file name.
+  def file_directory(selection)
+    while File.directory?(selection)
+      @file_information = file_get_more_information(selection) 
+      selection = file_selection(@file_information)
+      unless File.directory?(selection)
+        break
+      end
+    end
+    if File.directory?(selection)
+      @file_information.each do |directory,files|
+        files.each { |file| @file = "#{directory}/#{file.to_s}" if file == selection }
+      end
+    else
+      @file = "#{selection}"
+    end
+    file_history_push(@file)                                                # store it 
+#    user_pattern                                                           # update search_history
+    text_lines = file_open(@file, "r")                                      # open for read
+#    @text_processor.send(:text_exclude, text_lines)                        # exclude 
+    return text_lines
+  end  
+  
+  def file_selection(file_information)
+    key        = "root"                                                     # linux support only for now
+    file_break = ""                                                         # save for "break"
+    index      = 0                                                          # for user selection
+    number    = 0                                                           # for selection from table  
+    ui        = {} 
+    # build display for user selection
+    file_information.each_pair do |directory, files|
+      if files.length > 1
+        ui.store(index, directory)                                          # the internal UI
+        puts "Now in directory: #{directory}" 
+        files.each do |file| 
+          unless file.start_with?(".")
+            if File.directory?(file)
+              puts "#{index} #{file}"
+            else
+              puts "  #{index} #{file}"
+            end
+            ui.store(index, file) 
+            index += 1
+          end
+        end
+      end
+    end
+    # parse user selection
+    ARGF.each_line do |selection|                                          
+      number = selection.chomp!.to_i
+      break if (0..index).include?(number.to_i)                            # index reused from above  
+    end
+    file_name = ui[number]                                                  # get selection from UI table 
+  end
 end # class FileManager

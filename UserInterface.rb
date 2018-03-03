@@ -4,11 +4,11 @@ class UserInterface
   def initialize
     @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
-    @file = ""                                                              # gets built by user_prompt
+    @file = ""                                                            # gets built by user_prompt
   end
   
-  def user_prompt(prompt, function)
-    puts prompt                                                              # initial prompt 
+  def user_file_read
+    puts 'Enter file name or "enter" for directory' 
     selection = ""
     file_information = {}
     ARGF.each_line do |file|
@@ -17,41 +17,25 @@ class UserInterface
         # initial load of $file_information dealing with / (root) and /home
         directories = @file_manager.send(:file_get_initialization)
         file_information = @file_manager.send(:file_get_files, directories) 
-        selection = user_selection(file_information)
+        @file_name = user_selection(file_information)
       end
       break
     end
-    while File.directory?(selection)
-      @file_manager.send(:file_get_more_information, selection) 
-      selection = user_selection(file_information)
-      unless File.directory?(selection)
-        break
-      end
-    end
-    file_information.each do |directory,files|
-      files.each { |file| @file = "#{directory}/#{file.to_s}" if file == selection }
-    end
-    @file_manager.send(:file_history_push, @file)                          # store it for UserInterface class  
-    if function == "read"
-      user_pattern                                                        # update search_history
-      arguments = [@file, "r"]
-      text_lines = @file_manager.send(:file_open, *arguments)              # open for read
-      @text_processor.send(:text_exclude, text_lines)                      # exclude 
-      return @file
-    end
-  end 
+    return @file_name
+  end
   
-  def user_selection(file_information, *function)
-    key        = "root"                                                    # linux support only for now
-    file_break = ""                                                        # save for "break"
-    index      = 0                                                          # for user selection
-    number    = 0                                                          # for selection from table  
+  def user_selection(file_information)
+    key        = "root"                                                   # linux support only for now
+    file_break = ""                                                       # save for "break"
+    index      = 0                                                        # for user selection
+    number    = 0                                                         # for selection from table  
     ui        = {} 
     # build display for user selection
     file_information.each_pair do |directory, files|
       if files.length > 1
-        ui.store(index, directory)                                          # the internal UI
-        puts "Now in directory: #{directory}" 
+        ui.store(index, directory)                                        # the internal UI
+        puts "Now in directory: #{directory}"
+        @directory = directory
         files.each do |file| 
           unless file.start_with?(".")
             if File.directory?(file)
@@ -70,9 +54,17 @@ class UserInterface
       number = selection.chomp!.to_i
       break if (0..index).include?(number.to_i)                            # index reused from above  
     end
-    selection = ui[number]                                                  # get selection from UI table 
+    file_name = "#{@directory}/#{ui[number]}"                              # get selection from UI table 
   end
 
+  # Everything up until this point has been assumed to be an exclude request.
+  # Now addition features are provided.
+  #  1. Include additional search pattern
+  #  2. Delete all excluded text         
+  #  3. Delete all not excluded text     
+  #  4. Range functions                  
+  #  5. Write to file                 
+  #
   def user_options(text_area)
     puts <<-DELIMITER
     1. Include additional search pattern
@@ -90,11 +82,11 @@ class UserInterface
         user_pattern                                                          # update search_history 
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it 
-        @text_processor.send(:text_exclude, text_lines)                        # additional excludes  
+        @text_processor.send(:text_exclude, text_lines)                       # additional excludes  
       when "2"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_processor.send(:text_deletex, text_lines)                        # delete all excluded lines  
+        @text_processor.send(:text_deletex, text_lines)                       # delete all excluded lines  
       when "3"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
@@ -107,6 +99,7 @@ class UserInterface
       puts("Exiting")
       exit
     end
+    return selection
   end
   
   def user_prompt_write
@@ -158,8 +151,8 @@ class UserInterface
     end
     exit
   end
-  # the first entry in to the utility ends up here
-  # all the other functions also end up here since this is a visual tool
+  # The first entry in to the utility ends up here.\n
+  # All the other functions also end up here since this is a visual tool.\n
   def user_display(text_area)
     @text_area = text_area                                                  # save for user_write
     puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="
@@ -175,9 +168,13 @@ class UserInterface
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------"
       end 
     end 
-    user_options(text_area)
+    selection = user_options(text_area)
+    return selection
   end
-
+  # Regexp pattern matching is used for the line exclude function.
+  # Here the pattern is requested and stored in a global history file.
+  # Currently up to 9 search patterns can be stored for basic support.
+  # The current search pattern is returned.
   def user_pattern
     puts "Pattern to find in a line:\n "
     ARGF.each_line do |pattern|
@@ -194,6 +191,7 @@ class UserInterface
         break
       end
     end
+    return @pattern
   end
   
   def user_ranges(text_area, text_lines)
@@ -213,11 +211,12 @@ class UserInterface
     ARGF.each do |selection|
       selection = selection.chomp!
       selection_split = selection.split(" ")  
-      selection_split.each do |s|                                                    # check for range indicated
-        if s.include?("...")                                                          # range given?  
-          range_split = s.split("...")                                                # yes, split it for first and last
+      selection_split.each do |s|                                                  # check for range indicated
+        if s.include?("...")                                                      # range given?  
+          range_split = s.split("...")                                            # yes, split it for first and last
           selection_split[1] = range_split[0]                                    
-          selection_split[2] = range_split[1] - "1"  
+          selection_split[2] = range_split[1].to_i - 1  
+          selection_split[2] = selection_split[2].to_s                            # stay with strings
         end                                    
         if s.include?("..")                                                        # range given?  
           range_split = s.split("..")                                              # yes, split it for first and last
