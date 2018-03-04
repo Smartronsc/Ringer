@@ -73,7 +73,7 @@ class UserInterface
     selection = ui[number]                                                  # get selection from UI table 
   end
 
-  def user_options(text_area)
+  def user_prompt_options(text_area)
     puts <<-DELIMITER
     1. Include additional search pattern
     2. Delete all excluded text
@@ -100,7 +100,7 @@ class UserInterface
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
         @text_processor.send(:text_deletenx, text_lines)                      # delete all non excluded lines  
       when "4"
-        user_ranges(text_area, text_lines)    
+        user_prompt_ranges(text_area, text_lines)    
       when "5"
         path = user_prompt_write  
       else
@@ -175,7 +175,7 @@ class UserInterface
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------"
       end 
     end 
-    user_options(text_area)
+    user_prompt_options(text_area)
   end
 
   def user_pattern
@@ -196,7 +196,7 @@ class UserInterface
     end
   end
   
-  def user_ranges(text_area, text_lines)
+  def user_prompt_ranges(text_area, text_lines)
     puts <<-DELIMITER
     1. Select lines to be included
     2. Exclude additional lines
@@ -233,7 +233,7 @@ class UserInterface
 
       if selection_split.length < 3                                                  # check length entered
         puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
-        user_ranges(text_area, text_lines)                                                        # ask again for input
+        user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
       end
 
       @arguments = selection_split                                                      

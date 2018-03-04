@@ -76,15 +76,15 @@
     
     <li ><a href="#method-i-user_file_read">#user_file_read</a>
     
-    <li ><a href="#method-i-user_options">#user_options</a>
-    
     <li ><a href="#method-i-user_pattern">#user_pattern</a>
     
     <li ><a href="#method-i-user_prompt">#user_prompt</a>
     
-    <li ><a href="#method-i-user_prompt_write">#user_prompt_write</a>
+    <li ><a href="#method-i-user_prompt_options">#user_prompt_options</a>
     
-    <li ><a href="#method-i-user_ranges">#user_ranges</a>
+    <li ><a href="#method-i-user_prompt_ranges">#user_prompt_ranges</a>
+    
+    <li ><a href="#method-i-user_prompt_write">#user_prompt_write</a>
     
     <li ><a href="#method-i-user_selection">#user_selection</a>
     
@@ -135,7 +135,7 @@
 
         <div class="method-description">
           
-          <p>use assoc(line number) for line commands</p>
+          
           
           
 
@@ -145,7 +145,7 @@
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>
   <span class="ruby-ivar">@file_manager</span>  = <span class="ruby-constant">FileManager</span>.<span class="ruby-identifier">new</span> 
   <span class="ruby-ivar">@text_processor</span> = <span class="ruby-constant">TextProcessor</span>.<span class="ruby-identifier">new</span>
-  <span class="ruby-ivar">@file</span> = <span class="ruby-string">&quot;&quot;</span>                                                              <span class="ruby-comment"># gets built by user_prompt</span>
+  <span class="ruby-ivar">@file</span> = <span class="ruby-string">&quot;&quot;</span>                                                            <span class="ruby-comment"># gets built by user_prompt</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -185,7 +185,7 @@ also end up here since this is a visual tool.n</p>
 
           
           <div class="method-source-code" id="user_display-source">
-            <pre><span class="ruby-comment"># File UserInterface.rb, line 156</span>
+            <pre><span class="ruby-comment"># File UserInterface.rb, line 157</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">user_display</span>(<span class="ruby-identifier">text_area</span>)
   <span class="ruby-ivar">@text_area</span> = <span class="ruby-identifier">text_area</span>                                                  <span class="ruby-comment"># save for user_write</span>
   <span class="ruby-identifier">puts</span><span class="ruby-string">&quot;======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5==&quot;</span>
@@ -201,7 +201,7 @@ also end up here since this is a visual tool.n</p>
       <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------&quot;</span>
     <span class="ruby-keyword">end</span> 
   <span class="ruby-keyword">end</span> 
-  <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">user_options</span>(<span class="ruby-identifier">text_area</span>)
+  <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">user_prompt_options</span>(<span class="ruby-identifier">text_area</span>)
   <span class="ruby-keyword">return</span> <span class="ruby-identifier">selection</span>
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -260,79 +260,6 @@ also end up here since this is a visual tool.n</p>
       </div>
 
     
-      <div id="method-i-user_options" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">user_options</span><span
-            class="method-args">(text_area)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          <p>Everything up until this point has been assumed to be an exclude request.
-Now addition features are provided.</p>
-
-<pre>1. Include additional search pattern
-2. Delete all excluded text         
-3. Delete all not excluded text     
-4. Range functions                  
-5. Write to file</pre>
-          
-          
-
-          
-          <div class="method-source-code" id="user_options-source">
-            <pre><span class="ruby-comment"># File UserInterface.rb, line 68</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">user_options</span>(<span class="ruby-identifier">text_area</span>)
-  <span class="ruby-identifier">puts</span> <span class="ruby-value">&lt;&lt;-DELIMITER
-  1. Include additional search pattern
-  2. Delete all excluded text
-  3. Delete all not excluded text
-  4. Range functions
-  5. Write to file\n
-    DELIMITER</span>
-  <span class="ruby-constant">ARGF</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">selection</span><span class="ruby-operator">|</span>
-    <span class="ruby-ivar">@selection</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">chomp!</span>                                                          
-    <span class="ruby-keyword">break</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">case</span> <span class="ruby-ivar">@selection</span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;1&quot;</span>
-      <span class="ruby-identifier">user_pattern</span>                                                          <span class="ruby-comment"># update search_history </span>
-      <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
-      <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it </span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_exclude</span>, <span class="ruby-identifier">text_lines</span>)                        <span class="ruby-comment"># additional excludes  </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;2&quot;</span>
-      <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
-      <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletex</span>, <span class="ruby-identifier">text_lines</span>)                        <span class="ruby-comment"># delete all excluded lines  </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;3&quot;</span>
-      <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
-      <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletenx</span>, <span class="ruby-identifier">text_lines</span>)                      <span class="ruby-comment"># delete all non excluded lines  </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;4&quot;</span>
-      <span class="ruby-identifier">user_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)    
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;5&quot;</span>
-      <span class="ruby-identifier">path</span> = <span class="ruby-identifier">user_prompt_write</span>  
-    <span class="ruby-keyword">else</span>
-    <span class="ruby-identifier">puts</span>(<span class="ruby-string">&quot;Exiting&quot;</span>)
-    <span class="ruby-identifier">exit</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">return</span> <span class="ruby-identifier">selection</span>
-<span class="ruby-keyword">end</span></pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
       <div id="method-i-user_pattern" class="method-detail ">
         
         <div class="method-heading">
@@ -346,14 +273,16 @@ Now addition features are provided.</p>
 
         <div class="method-description">
           
-          <p>Currently up to 9 search patterns can be stored for basic support.n The
-current search pattern is returned.n</p>
+          <p>Regexp pattern matching is used for the line exclude function. Here the
+pattern is requested and stored in a global history file. Currently up to 9
+search patterns can be stored for basic support. The current search pattern
+is returned.</p>
           
           
 
           
           <div class="method-source-code" id="user_pattern-source">
-            <pre><span class="ruby-comment"># File UserInterface.rb, line 178</span>
+            <pre><span class="ruby-comment"># File UserInterface.rb, line 179</span>
   <span class="ruby-keyword">def</span> <span class="ruby-identifier">user_pattern</span>
     <span class="ruby-identifier">puts</span> <span class="ruby-string">&quot;Pattern to find in a line:\n &quot;</span>
     <span class="ruby-constant">ARGF</span>.<span class="ruby-identifier">each_line</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">pattern</span><span class="ruby-operator">|</span>
@@ -445,6 +374,174 @@ current search pattern is returned.n</p>
       </div>
 
     
+      <div id="method-i-user_prompt_options" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">user_prompt_options</span><span
+            class="method-args">(text_area)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Everything up until this point has been assumed to be an exclude request.
+Now addition features are provided.</p>
+
+<pre>1. Include additional search pattern
+2. Delete all excluded text         
+3. Delete all not excluded text     
+4. Range functions                  
+5. Write to file</pre>
+
+<p>These are the initial fundamental quick look options</p>
+          
+          
+
+          
+          <div class="method-source-code" id="user_prompt_options-source">
+            <pre><span class="ruby-comment"># File UserInterface.rb, line 68</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">user_prompt_options</span>(<span class="ruby-identifier">text_area</span>)
+    <span class="ruby-identifier">puts</span> <span class="ruby-value">&lt;&lt;-DELIMITER
+    1. Include additional search pattern
+    2. Delete all excluded text
+    3. Delete all not excluded text
+    4. Range functions
+    5. Write to file\n
+      DELIMITER</span>
+    <span class="ruby-constant">ARGF</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">selection</span><span class="ruby-operator">|</span>
+      <span class="ruby-ivar">@selection</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">chomp!</span>                                                          
+      <span class="ruby-keyword">break</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">case</span> <span class="ruby-ivar">@selection</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;1&quot;</span>
+        <span class="ruby-identifier">user_pattern</span>                                                          <span class="ruby-comment"># update search_history </span>
+        <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
+        <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it </span>
+        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_exclude</span>, <span class="ruby-identifier">text_lines</span>)          <span class="ruby-comment"># additional excludes  </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;2&quot;</span>
+        <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
+        <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
+        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletex</span>, <span class="ruby-identifier">text_lines</span>)          <span class="ruby-comment"># delete all excluded lines  </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;3&quot;</span>
+        <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
+        <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
+        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletenx</span>, <span class="ruby-identifier">text_lines</span>)         <span class="ruby-comment"># delete all non excluded lines  </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;4&quot;</span>
+<span class="ruby-comment">#      user_display(text_area)</span>
+      <span class="ruby-ivar">@text_area</span> = <span class="ruby-identifier">user_prompt_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)    
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;5&quot;</span>
+        <span class="ruby-identifier">path</span> = <span class="ruby-identifier">user_prompt_write</span>  
+      <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">puts</span>(<span class="ruby-string">&quot;Exiting&quot;</span>)
+      <span class="ruby-identifier">exit</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-ivar">@text_area</span>
+  <span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-user_prompt_ranges" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">user_prompt_ranges</span><span
+            class="method-args">(text_area, text_lines)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>After the initial exclude request you may want some modifications. They are
+presented in logical pairs.</p>
+
+<pre class="ruby"><span class="ruby-value">1</span>. <span class="ruby-constant">Include</span> <span class="ruby-identifier">additional</span> <span class="ruby-identifier">lines</span>
+<span class="ruby-value">2</span>. <span class="ruby-constant">Exclude</span> <span class="ruby-identifier">additional</span> <span class="ruby-identifier">lines</span>
+<span class="ruby-value">3</span>. <span class="ruby-constant">Delete</span> <span class="ruby-identifier">included</span> <span class="ruby-identifier">lines</span>   
+<span class="ruby-value">4</span>. <span class="ruby-constant">Delete</span> <span class="ruby-identifier">excluded</span> <span class="ruby-identifier">lines</span>   
+<span class="ruby-value">5</span>. <span class="ruby-constant">Insert</span> <span class="ruby-identifier">lines</span>            
+<span class="ruby-value">6</span>. <span class="ruby-constant">Delete</span> <span class="ruby-identifier">lines</span>            
+<span class="ruby-value">7</span>. <span class="ruby-constant">Copy</span> <span class="ruby-identifier">lines</span>              
+<span class="ruby-value">8</span>. <span class="ruby-constant">Move</span> <span class="ruby-identifier">lines</span>  
+<span class="ruby-value">9</span>. <span class="ruby-constant">Write</span> <span class="ruby-identifier">to</span> <span class="ruby-identifier">file</span>
+</pre>
+
+<p>These options let you work with the data</p>
+          
+          
+
+          
+          <div class="method-source-code" id="user_prompt_ranges-source">
+            <pre><span class="ruby-comment"># File UserInterface.rb, line 209</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">user_prompt_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)
+  <span class="ruby-identifier">puts</span> <span class="ruby-value">&lt;&lt;-DELIMITER
+  1. Include additional lines
+  2. Exclude additional lines
+  3. Delete included lines
+  4. Delete excluded lines
+  5. Insert lines
+  6. Delete lines
+  7. Copy lines 
+  8. Move lines
+  9. Write to file
+  
+  Enter the action and a range or a single number amount with an &quot;after&quot; location
+  Enter 1 5..12   for a range or 1 7 5 for the 7 lines after line 5 to be included
+    DELIMITER</span>
+  <span class="ruby-identifier">index</span> = <span class="ruby-value">1</span>
+  <span class="ruby-constant">ARGF</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">selection</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">chomp!</span>
+    <span class="ruby-identifier">selection_split</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot; &quot;</span>)  
+    <span class="ruby-identifier">selection_split</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">s</span><span class="ruby-operator">|</span>                                                  <span class="ruby-comment"># check for range indicated</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-string">&quot;...&quot;</span>)                                                      <span class="ruby-comment"># range given?  </span>
+        <span class="ruby-identifier">range_split</span> = <span class="ruby-identifier">s</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot;...&quot;</span>)                                            <span class="ruby-comment"># yes, split it for first and last</span>
+        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">0</span>]                                    
+        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>  
+        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_s</span>                            <span class="ruby-comment"># stay with strings</span>
+      <span class="ruby-keyword">end</span>                                    
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-string">&quot;..&quot;</span>)                                                        <span class="ruby-comment"># range given?  </span>
+        <span class="ruby-identifier">range_split</span> = <span class="ruby-identifier">s</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot;..&quot;</span>)                                              <span class="ruby-comment"># yes, split it for first and last</span>
+        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">0</span>]                                    
+        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">1</span>] 
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">match</span>(<span class="ruby-string">&#39;\.&#39;</span>)
+      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>
+      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_s</span>
+      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_s</span>                                      
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">selection_split</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">3</span>                                                  <span class="ruby-comment"># check length entered</span>
+      <span class="ruby-identifier">puts</span> <span class="ruby-string">&quot;Format is: Selection number then Range (11..23) or Amount with &#39;after&#39; number&quot;</span>
+      <span class="ruby-identifier">user_prompt_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)                                                        <span class="ruby-comment"># ask again for input</span>
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-ivar">@arguments</span> = <span class="ruby-identifier">selection_split</span>                                                      
+    <span class="ruby-keyword">break</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_mixer</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-ivar">@arguments</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
       <div id="method-i-user_prompt_write" class="method-detail ">
         
         <div class="method-heading">
@@ -464,7 +561,7 @@ current search pattern is returned.n</p>
 
           
           <div class="method-source-code" id="user_prompt_write-source">
-            <pre><span class="ruby-comment"># File UserInterface.rb, line 105</span>
+            <pre><span class="ruby-comment"># File UserInterface.rb, line 106</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">user_prompt_write</span>
   <span class="ruby-ivar">@choice</span> = <span class="ruby-string">&quot;&quot;</span>
   <span class="ruby-ivar">@path</span>  = <span class="ruby-string">&quot;&quot;</span>
@@ -524,82 +621,6 @@ current search pattern is returned.n</p>
       </div>
 
     
-      <div id="method-i-user_ranges" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">user_ranges</span><span
-            class="method-args">(text_area, text_lines)</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          
-          
-          
-
-          
-          <div class="method-source-code" id="user_ranges-source">
-            <pre><span class="ruby-comment"># File UserInterface.rb, line 197</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">user_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)
-  <span class="ruby-identifier">puts</span> <span class="ruby-value">&lt;&lt;-DELIMITER
-  1. Select lines to be included
-  2. Exclude additional lines
-  3. Delete lines shown or excluded
-  4. Insert lines
-  5. Copy lines 
-  6. Move lines
-  
-  Type your selection, a range or a single number amount with an &quot;after&quot; location
-  For example 1 5..12 range to include or 1 7 5 the 7 lines after line 5
-  Enter 6 10 0 or 6 10..20 0 to move lines 10 to 20 before line 1\n
-    DELIMITER</span>
-  <span class="ruby-identifier">index</span> = <span class="ruby-value">1</span>
-  <span class="ruby-constant">ARGF</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">selection</span><span class="ruby-operator">|</span>
-    <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">chomp!</span>
-    <span class="ruby-identifier">selection_split</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot; &quot;</span>)  
-    <span class="ruby-identifier">selection_split</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">s</span><span class="ruby-operator">|</span>                                                  <span class="ruby-comment"># check for range indicated</span>
-      <span class="ruby-keyword">if</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-string">&quot;...&quot;</span>)                                                      <span class="ruby-comment"># range given?  </span>
-        <span class="ruby-identifier">range_split</span> = <span class="ruby-identifier">s</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot;...&quot;</span>)                                            <span class="ruby-comment"># yes, split it for first and last</span>
-        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">0</span>]                                    
-        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-value">1</span>  
-        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_s</span>                            <span class="ruby-comment"># stay with strings</span>
-      <span class="ruby-keyword">end</span>                                    
-      <span class="ruby-keyword">if</span> <span class="ruby-identifier">s</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-string">&quot;..&quot;</span>)                                                        <span class="ruby-comment"># range given?  </span>
-        <span class="ruby-identifier">range_split</span> = <span class="ruby-identifier">s</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot;..&quot;</span>)                                              <span class="ruby-comment"># yes, split it for first and last</span>
-        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">0</span>]                                    
-        <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">range_split</span>[<span class="ruby-value">1</span>] 
-      <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">unless</span> <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">match</span>(<span class="ruby-string">&#39;\.&#39;</span>)
-      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>] = <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>
-      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_s</span>
-      <span class="ruby-identifier">selection_split</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_s</span>                                      
-    <span class="ruby-keyword">end</span>
-
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">selection_split</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">3</span>                                                  <span class="ruby-comment"># check length entered</span>
-      <span class="ruby-identifier">puts</span> <span class="ruby-string">&quot;Format is: Selection number then Range (11..23) or Amount with &#39;after&#39; number&quot;</span>
-      <span class="ruby-identifier">user_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)                                                        <span class="ruby-comment"># ask again for input</span>
-    <span class="ruby-keyword">end</span>
-
-    <span class="ruby-ivar">@arguments</span> = <span class="ruby-identifier">selection_split</span>                                                      
-    <span class="ruby-keyword">break</span>
-  <span class="ruby-keyword">end</span>
-  <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_mixer</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-ivar">@arguments</span>)
-<span class="ruby-keyword">end</span></pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
       <div id="method-i-user_selection" class="method-detail ">
         
         <div class="method-heading">
@@ -621,10 +642,10 @@ current search pattern is returned.n</p>
           <div class="method-source-code" id="user_selection-source">
             <pre><span class="ruby-comment"># File UserInterface.rb, line 27</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">user_selection</span>(<span class="ruby-identifier">file_information</span>)
-  <span class="ruby-identifier">key</span>        = <span class="ruby-string">&quot;root&quot;</span>                                                    <span class="ruby-comment"># linux support only for now</span>
-  <span class="ruby-identifier">file_break</span> = <span class="ruby-string">&quot;&quot;</span>                                                        <span class="ruby-comment"># save for &quot;break&quot;</span>
+  <span class="ruby-identifier">key</span>        = <span class="ruby-string">&quot;root&quot;</span>                                                   <span class="ruby-comment"># linux support only for now</span>
+  <span class="ruby-identifier">file_break</span> = <span class="ruby-string">&quot;&quot;</span>                                                       <span class="ruby-comment"># save for &quot;break&quot;</span>
   <span class="ruby-identifier">index</span>      = <span class="ruby-value">0</span>                                                        <span class="ruby-comment"># for user selection</span>
-  <span class="ruby-identifier">number</span>    = <span class="ruby-value">0</span>                                                        <span class="ruby-comment"># for selection from table  </span>
+  <span class="ruby-identifier">number</span>    = <span class="ruby-value">0</span>                                                         <span class="ruby-comment"># for selection from table  </span>
   <span class="ruby-identifier">ui</span>        = {} 
   <span class="ruby-comment"># build display for user selection</span>
   <span class="ruby-identifier">file_information</span>.<span class="ruby-identifier">each_pair</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">directory</span>, <span class="ruby-identifier">files</span><span class="ruby-operator">|</span>
@@ -650,7 +671,7 @@ current search pattern is returned.n</p>
     <span class="ruby-identifier">number</span> = <span class="ruby-identifier">selection</span>.<span class="ruby-identifier">chomp!</span>.<span class="ruby-identifier">to_i</span>
     <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> (<span class="ruby-value">0</span><span class="ruby-operator">..</span><span class="ruby-identifier">index</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">number</span>.<span class="ruby-identifier">to_i</span>)                            <span class="ruby-comment"># index reused from above  </span>
   <span class="ruby-keyword">end</span>
-  <span class="ruby-identifier">file_name</span> = <span class="ruby-node">&quot;#{@directory}/#{ui[number]}&quot;</span>                                                  <span class="ruby-comment"># get selection from UI table </span>
+  <span class="ruby-identifier">file_name</span> = <span class="ruby-node">&quot;#{@directory}/#{ui[number]}&quot;</span>                              <span class="ruby-comment"># get selection from UI table </span>
 <span class="ruby-keyword">end</span></pre>
           </div>
           

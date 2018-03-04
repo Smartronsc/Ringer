@@ -187,27 +187,25 @@ directory.</p>
           
           <div class="method-source-code" id="file_directory-source">
             <pre><span class="ruby-comment"># File FileManager.rb, line 119</span>
-  <span class="ruby-keyword">def</span> <span class="ruby-identifier">file_directory</span>(<span class="ruby-identifier">selection</span>)
-    <span class="ruby-keyword">while</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
-      <span class="ruby-ivar">@file_information</span> = <span class="ruby-identifier">file_get_more_information</span>(<span class="ruby-identifier">selection</span>) 
-      <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">file_selection</span>(<span class="ruby-ivar">@file_information</span>)
-      <span class="ruby-keyword">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
-        <span class="ruby-keyword">break</span>
-      <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">file_directory</span>(<span class="ruby-identifier">selection</span>)
+  <span class="ruby-keyword">while</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
+    <span class="ruby-ivar">@file_information</span> = <span class="ruby-identifier">file_get_more_information</span>(<span class="ruby-identifier">selection</span>) 
+    <span class="ruby-identifier">selection</span> = <span class="ruby-identifier">file_selection</span>(<span class="ruby-ivar">@file_information</span>)
+    <span class="ruby-keyword">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
+      <span class="ruby-keyword">break</span>
     <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
-      <span class="ruby-ivar">@file_information</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">directory</span>,<span class="ruby-identifier">files</span><span class="ruby-operator">|</span>
-        <span class="ruby-identifier">files</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@file</span> = <span class="ruby-node">&quot;#{directory}/#{file.to_s}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">file</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">selection</span> }
-      <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">else</span>
-      <span class="ruby-ivar">@file</span> = <span class="ruby-node">&quot;#{selection}&quot;</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">selection</span>)
+    <span class="ruby-ivar">@file_information</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">directory</span>,<span class="ruby-identifier">files</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">files</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span> <span class="ruby-ivar">@file</span> = <span class="ruby-node">&quot;#{directory}/#{file.to_s}&quot;</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">file</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">selection</span> }
     <span class="ruby-keyword">end</span>
-    <span class="ruby-identifier">file_history_push</span>(<span class="ruby-ivar">@file</span>)                                                <span class="ruby-comment"># store it </span>
-<span class="ruby-comment">#    user_pattern                                                           # update search_history</span>
-    <span class="ruby-identifier">text_lines</span> = <span class="ruby-identifier">file_open</span>(<span class="ruby-ivar">@file</span>, <span class="ruby-string">&quot;r&quot;</span>)                                      <span class="ruby-comment"># open for read</span>
-<span class="ruby-comment">#    @text_processor.send(:text_exclude, text_lines)                        # exclude </span>
-    <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_lines</span>
-  <span class="ruby-keyword">end</span></pre>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-ivar">@file</span> = <span class="ruby-node">&quot;#{selection}&quot;</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">file_history_push</span>(<span class="ruby-ivar">@file</span>)                                                <span class="ruby-comment"># store it </span>
+  <span class="ruby-identifier">text_lines</span> = <span class="ruby-identifier">file_open</span>(<span class="ruby-ivar">@file</span>, <span class="ruby-string">&quot;r&quot;</span>)                                      <span class="ruby-comment"># open for read</span>
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_lines</span>
+<span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -528,7 +526,7 @@ deep</p>
 
           
           <div class="method-source-code" id="file_selection-source">
-            <pre><span class="ruby-comment"># File FileManager.rb, line 141</span>
+            <pre><span class="ruby-comment"># File FileManager.rb, line 139</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">file_selection</span>(<span class="ruby-identifier">file_information</span>)
   <span class="ruby-identifier">key</span>        = <span class="ruby-string">&quot;root&quot;</span>                                                     <span class="ruby-comment"># linux support only for now</span>
   <span class="ruby-identifier">file_break</span> = <span class="ruby-string">&quot;&quot;</span>                                                         <span class="ruby-comment"># save for &quot;break&quot;</span>

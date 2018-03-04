@@ -80,9 +80,11 @@
     
     <li ><a href="#method-i-text_handler">#text_handler</a>
     
-    <li ><a href="#method-i-text_include">#text_include</a>
-    
     <li ><a href="#method-i-text_mixer">#text_mixer</a>
+    
+    <li ><a href="#method-i-text_mixer_exclude">#text_mixer_exclude</a>
+    
+    <li ><a href="#method-i-text_mixer_include">#text_mixer_include</a>
     
     <li ><a href="#method-i-text_write_area">#text_write_area</a>
     
@@ -144,10 +146,10 @@
             <pre><span class="ruby-comment"># File TextProcessor.rb, line 3</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>
   <span class="ruby-ivar">@file_manager</span>      = <span class="ruby-constant">FileManager</span>.<span class="ruby-identifier">new</span> 
-  <span class="ruby-ivar">@new_text_area</span>    = {}
+  <span class="ruby-ivar">@new_text_area</span>     = {}
   <span class="ruby-ivar">@text_lines</span>        = {}
   <span class="ruby-ivar">@line_start</span>        = <span class="ruby-value">0</span>
-  <span class="ruby-ivar">@line_actual</span>      = <span class="ruby-value">-1</span>
+  <span class="ruby-ivar">@line_actual</span>       = <span class="ruby-value">-1</span>
   <span class="ruby-ivar">@block_start_line</span>  = []
   <span class="ruby-ivar">@block_start_type</span>  = <span class="ruby-string">&quot;&quot;</span>
   <span class="ruby-ivar">@block_start_count</span> = <span class="ruby-value">0</span>
@@ -155,8 +157,8 @@
   <span class="ruby-ivar">@line_end</span>          = <span class="ruby-value">0</span>
   <span class="ruby-ivar">@block_end_line</span>    = []
   <span class="ruby-ivar">@block_end_type</span>    = <span class="ruby-string">&#39;&#39;</span>
-  <span class="ruby-ivar">@block_end_count</span>  = <span class="ruby-value">0</span>
-  <span class="ruby-ivar">@block_end_index</span>  = <span class="ruby-value">0</span>
+  <span class="ruby-ivar">@block_end_count</span>   = <span class="ruby-value">0</span>
+  <span class="ruby-ivar">@block_end_index</span>   = <span class="ruby-value">0</span>
   <span class="ruby-ivar">@keys</span>              = []
 <span class="ruby-keyword">end</span></pre>
           </div>
@@ -196,7 +198,7 @@
 
           
           <div class="method-source-code" id="text_deletenx-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 188</span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 242</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_deletenx</span>(<span class="ruby-identifier">text_lines</span>)
   <span class="ruby-ivar">@user_interface</span> = <span class="ruby-constant">UserInterface</span>.<span class="ruby-identifier">new</span>
   <span class="ruby-identifier">text_area</span>    = {}
@@ -208,8 +210,8 @@
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_num</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">text</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">not_found</span> <span class="ruby-comment"># write out this line if not found</span>
     <span class="ruby-identifier">not_found</span> = <span class="ruby-keyword">true</span>
-  <span class="ruby-keyword">end</span>  
-  <span class="ruby-ivar">@user_interface</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:user_display</span>, <span class="ruby-identifier">text_area</span>)
+  <span class="ruby-keyword">end</span> 
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_area</span> 
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -240,7 +242,7 @@
 
           
           <div class="method-source-code" id="text_deletex-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 173</span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 227</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_deletex</span>(<span class="ruby-identifier">text_lines</span>)
   <span class="ruby-ivar">@user_interface</span> = <span class="ruby-constant">UserInterface</span>.<span class="ruby-identifier">new</span>
   <span class="ruby-identifier">text_area</span>    = {}
@@ -252,8 +254,8 @@
     <span class="ruby-keyword">end</span>
     <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_num</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">text</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">found</span> <span class="ruby-comment"># write out this line            </span>
     <span class="ruby-identifier">found</span> = <span class="ruby-keyword">false</span>
-  <span class="ruby-keyword">end</span>  
-  <span class="ruby-ivar">@user_interface</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:user_display</span>, <span class="ruby-identifier">text_area</span>)
+  <span class="ruby-keyword">end</span> 
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_area</span> 
 <span class="ruby-keyword">end</span></pre>
           </div>
           
@@ -295,7 +297,7 @@
 
           
           <div class="method-source-code" id="text_exclude-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 139</span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 193</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_exclude</span>(<span class="ruby-identifier">text_lines</span>)
   <span class="ruby-identifier">text_area</span>     = {}
   <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
@@ -378,66 +380,6 @@
       </div>
 
     
-      <div id="method-i-text_include" class="method-detail ">
-        
-        <div class="method-heading">
-          <span class="method-name">text_include</span><span
-            class="method-args">()</span>
-          
-          <span class="method-click-advice">click to toggle source</span>
-          
-        </div>
-        
-
-        <div class="method-description">
-          
-          <p>this includes more lines in text_area for 1. Select lines to be included</p>
-          
-          
-
-          
-          <div class="method-source-code" id="text_include-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 102</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">text_include</span>
-  <span class="ruby-ivar">@user_interface</span> = <span class="ruby-constant">UserInterface</span>.<span class="ruby-identifier">new</span>
-  <span class="ruby-identifier">amount</span> = <span class="ruby-ivar">@line_end</span> <span class="ruby-operator">-</span> <span class="ruby-ivar">@line_start</span>
-  <span class="ruby-identifier">stop_at</span> = <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">amount</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;amount #{amount} after #{@line_start} stop at #{stop_at}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_start          #{@line_start}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_end            #{@line_end}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;text_end            #{@text_end}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_start_index  #{@block_start_index}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block end_index    #{@block_end_index}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_first        #{@block_first}&quot;</span>
-  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_last          #{@block_last}&quot;</span>
-  
-  <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_start</span>
-      <span class="ruby-identifier">text_write_area</span>(<span class="ruby-value">0</span>, <span class="ruby-ivar">@line_start</span>)                            <span class="ruby-comment"># copy from begining</span>
-    <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-ivar">@block_index_start</span>
-      <span class="ruby-comment"># calculate new exclude count</span>
-      <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_num</span>, [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])
-    <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_end</span>
-      <span class="ruby-identifier">text_write_lines</span>(<span class="ruby-ivar">@line_start</span>, <span class="ruby-ivar">@line_end</span>)                    <span class="ruby-comment"># include these lines</span>
-    <span class="ruby-keyword">end</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_end</span>
-      <span class="ruby-identifier">text_write_area</span>(<span class="ruby-ivar">@line_end</span>, <span class="ruby-ivar">@area_end</span>)                      <span class="ruby-comment"># copy this area</span>
-    <span class="ruby-keyword">end</span>
-  <span class="ruby-keyword">end</span>  
-  <span class="ruby-ivar">@user_interface</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:user_display</span>, <span class="ruby-ivar">@new_text_area</span>)
-<span class="ruby-keyword">end</span></pre>
-          </div>
-          
-        </div>
-
-        
-
-        
-      </div>
-
-    
       <div id="method-i-text_mixer" class="method-detail ">
         
         <div class="method-heading">
@@ -451,72 +393,379 @@
 
         <div class="method-description">
           
-          <p>text_area full line format is [control_number, line_actual [control type,
-count or data in line]] as a hash text_area control format is
-control_number [“before”, count of lines preceeding] or [“text”, data in
-line] as an array parameters are normalized to act as a range</p>
+          <p>The big picture is there are two things in play, the text_area which is
+built as the first exclude display and the text_lines which is the original
+input file used to rebuild the text_area as required. Beyond that the
+requirement is to track the various “lines excluded” positions, the number
+of lines excluded for various conditions related to the actions required in
+rebuilding the original exclude display. text_area full line format is
+[control_number, line_actual [control type, count or data in line]] as a
+hash text_area control format is control_number [“before”, count of lines
+preceeding] or [“text”, data in line] as an array parameters are normalized
+to act as a range</p>
           
           
 
           
           <div class="method-source-code" id="text_mixer-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 24</span>
-<span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">parameters</span>)
-  <span class="ruby-identifier">original_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)                  <span class="ruby-comment"># get the original file</span>
-  <span class="ruby-ivar">@text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">original_file</span>)              <span class="ruby-comment"># open it</span>
-  <span class="ruby-ivar">@text_end</span>    = <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">length</span>                                          <span class="ruby-comment"># actual data length</span>
-  <span class="ruby-ivar">@text_area</span>    = <span class="ruby-identifier">text_area</span>                                                  <span class="ruby-comment"># contains display area</span>
-  <span class="ruby-ivar">@area_end</span>    = <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">length</span>                                          <span class="ruby-comment"># actual area length</span>
-  <span class="ruby-identifier">selection</span>    = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">0</span>]                                              <span class="ruby-comment"># what to do</span>
-  <span class="ruby-ivar">@line_start</span>  = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>                                          <span class="ruby-comment"># lower boundary for line data changes</span>
-  <span class="ruby-ivar">@line_end</span>    = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>                                          <span class="ruby-comment"># upper boundary for line data changes</span>
-  <span class="ruby-ivar">@keys</span>        = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">keys</span>                                              <span class="ruby-comment"># text_area keys are the control areas</span>
-  <span class="ruby-ivar">@block_first</span>  = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">first</span>                                                <span class="ruby-comment"># end of text_area</span>
-  <span class="ruby-ivar">@block_last</span>  = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">last</span>                                                  <span class="ruby-comment"># last control line in text_area</span>
-  <span class="ruby-ivar">@line_end</span>    = <span class="ruby-ivar">@text_end</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@line_end</span> <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@text_end</span>                          <span class="ruby-comment"># clean up directive  </span>
-  <span class="ruby-comment"># find the section of data to modify based on finding </span>
-  <span class="ruby-comment"># the &quot;before&quot; type preceeding and following the range</span>
-  <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>                                                          <span class="ruby-comment"># find start text_area type &quot;before&quot;</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_start</span>                                                        <span class="ruby-comment"># use this to format new following data</span>
-      <span class="ruby-ivar">@block_start_index</span> = <span class="ruby-identifier">k</span>                                                  <span class="ruby-comment"># and new preceding &quot;before&quot; information</span>
-      <span class="ruby-ivar">@block_start_line</span> = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">values_at</span>(<span class="ruby-identifier">k</span>)                              <span class="ruby-comment"># get control using line number as key</span>
-      <span class="ruby-ivar">@block_start_line</span>.<span class="ruby-identifier">flatten!</span>                                              <span class="ruby-comment"># comes back as one array too many</span>
-      <span class="ruby-ivar">@block_start_type</span>  = <span class="ruby-ivar">@block_start_line</span>[<span class="ruby-value">0</span>]                              <span class="ruby-comment"># just to make it clear, not needed</span>
-      <span class="ruby-ivar">@block_start_count</span> = <span class="ruby-ivar">@block_start_line</span>[<span class="ruby-value">1</span>]                              <span class="ruby-comment"># this is the amount to adjust</span>
-      <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@block_start_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;before&quot;</span>                                  <span class="ruby-comment"># first one after k &gt; line_start </span>
-    <span class="ruby-keyword">else</span>
-      <span class="ruby-ivar">@block_start_index</span> = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">last</span>                                        <span class="ruby-comment"># use last control number  </span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 27</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">parameters</span>)
+    <span class="ruby-identifier">original_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)                  <span class="ruby-comment"># get the original file</span>
+    <span class="ruby-ivar">@text_lines</span>   = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">original_file</span>)              <span class="ruby-comment"># open it</span>
+    <span class="ruby-ivar">@text_end</span>     = <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">length</span>                                         <span class="ruby-comment"># actual data length</span>
+    <span class="ruby-ivar">@text_area</span>    = <span class="ruby-identifier">text_area</span>                                                  <span class="ruby-comment"># contains display area</span>
+    <span class="ruby-ivar">@area_end</span>     = <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">length</span>                                          <span class="ruby-comment"># actual area length</span>
+    <span class="ruby-ivar">@selection</span>    = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">0</span>]                                              <span class="ruby-comment"># what to do</span>
+    <span class="ruby-ivar">@line_start</span>   = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">1</span>].<span class="ruby-identifier">to_i</span>                                         <span class="ruby-comment"># lower boundary for line data changes</span>
+    <span class="ruby-ivar">@line_end</span>     = <span class="ruby-identifier">parameters</span>[<span class="ruby-value">2</span>].<span class="ruby-identifier">to_i</span>                                         <span class="ruby-comment"># upper boundary for line data changes</span>
+    <span class="ruby-ivar">@keys</span>         = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">keys</span>                                             <span class="ruby-comment"># text_area keys are the control areas</span>
+    <span class="ruby-ivar">@block_first</span>  = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">first</span>                                                <span class="ruby-comment"># end of text_area</span>
+    <span class="ruby-ivar">@block_last</span>   = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">last</span>                                                 <span class="ruby-comment"># last control line in text_area</span>
+    <span class="ruby-ivar">@line_end</span>     = <span class="ruby-ivar">@text_end</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@line_end</span> <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@text_end</span>                         <span class="ruby-comment"># clean up directive </span>
+    <span class="ruby-comment"># </span>
+    <span class="ruby-comment"># find the section of data to modify based on finding the &quot;before&quot; type preceding and following the range</span>
+    <span class="ruby-comment"># it is also necessary to keep track of the block prior to the block preceding for uses with excludes of excludes</span>
+    <span class="ruby-comment">#</span>
+    <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>                                                          <span class="ruby-comment"># find start text_area type &quot;before&quot;</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">block_start_line</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;&quot;</span>                                                <span class="ruby-comment"># block_start data has not been established </span>
+        <span class="ruby-ivar">@block_prior_index</span> = <span class="ruby-identifier">k</span>                                                 <span class="ruby-comment"># and new preceding &quot;before&quot; information</span>
+        <span class="ruby-ivar">@block_prior_line</span> = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">values_at</span>(<span class="ruby-identifier">k</span>)                             <span class="ruby-comment"># get control using line number as key</span>
+        <span class="ruby-ivar">@block_prior_line</span>.<span class="ruby-identifier">flatten!</span>                                             <span class="ruby-comment"># comes back as one array too many</span>
+        <span class="ruby-ivar">@block_prior_type</span>  = <span class="ruby-ivar">@block_prior_line</span>[<span class="ruby-value">0</span>]                              <span class="ruby-comment"># just to make it clear, not needed</span>
+        <span class="ruby-ivar">@block_prior_count</span> = <span class="ruby-ivar">@block_prior_line</span>[<span class="ruby-value">1</span>]                              <span class="ruby-comment"># this is the amount to adjust</span>
+        <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@block_prior_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;before&quot;</span>                                 <span class="ruby-comment"># first one after k &gt; line_start </span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_start</span>                                                       <span class="ruby-comment"># use this to format new following data</span>
+        <span class="ruby-ivar">@block_start_index</span> = <span class="ruby-identifier">k</span>                                                 <span class="ruby-comment"># and new preceding &quot;before&quot; information</span>
+        <span class="ruby-ivar">@block_start_line</span> = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">values_at</span>(<span class="ruby-identifier">k</span>)                             <span class="ruby-comment"># get control using line number as key</span>
+        <span class="ruby-ivar">@block_start_line</span>.<span class="ruby-identifier">flatten!</span>                                             <span class="ruby-comment"># comes back as one array too many</span>
+        <span class="ruby-ivar">@block_start_type</span>  = <span class="ruby-ivar">@block_start_line</span>[<span class="ruby-value">0</span>]                              <span class="ruby-comment"># just to make it clear, not needed</span>
+        <span class="ruby-ivar">@block_start_count</span> = <span class="ruby-ivar">@block_start_line</span>[<span class="ruby-value">1</span>]                              <span class="ruby-comment"># this is the amount to adjust</span>
+        <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@block_start_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;before&quot;</span>                                 <span class="ruby-comment"># first one after k &gt; line_start </span>
+      <span class="ruby-keyword">else</span>
+        <span class="ruby-ivar">@block_start_index</span> = <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">last</span>                                        <span class="ruby-comment"># use last control number  </span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>                                                          <span class="ruby-comment"># find end text_area type &quot;before&quot;</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_end</span>                                                        <span class="ruby-comment"># use this to format new preceeding data</span>
+        <span class="ruby-ivar">@block_end_index</span> = <span class="ruby-identifier">k</span>                                                   <span class="ruby-comment"># and new following &quot;before&quot; information</span>
+        <span class="ruby-ivar">@block_end_line</span>  = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">values_at</span>(<span class="ruby-identifier">k</span>) 
+        <span class="ruby-ivar">@block_end_line</span>.<span class="ruby-identifier">flatten!</span>
+        <span class="ruby-ivar">@block_end_count</span> = <span class="ruby-ivar">@block_end_line</span>[<span class="ruby-value">1</span>]
+        <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@block_end_line</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&quot;before&quot;</span>                                <span class="ruby-comment"># first one after k &gt; line_end</span>
+      <span class="ruby-keyword">else</span>
+        <span class="ruby-ivar">@block_end_index</span> = <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">length</span>                                  <span class="ruby-comment"># use end of file</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>  
+    <span class="ruby-keyword">case</span> <span class="ruby-ivar">@selection</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;1&quot;</span>
+      <span class="ruby-identifier">text_mixer_include</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;2&quot;</span>
+      <span class="ruby-identifier">text_mixer_exclude</span> 
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;3&quot;</span>
+        <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletesx</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>) <span class="ruby-comment"># delete some lines </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;4&quot;</span>
+        <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_insert</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)   <span class="ruby-comment"># insert some lines </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;5&quot;</span>
+        <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_copy</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)     <span class="ruby-comment"># copy some lines </span>
+      <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;6&quot;</span>
+        <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_move</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)     <span class="ruby-comment"># move some lines </span>
+      <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">puts</span>(<span class="ruby-string">&quot;Exiting&quot;</span>)
+      <span class="ruby-identifier">exit</span>
+    <span class="ruby-keyword">end</span> 
+  <span class="ruby-keyword">end</span>
+    
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_write_area</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>)
+    <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>                                     <span class="ruby-comment"># area containing excluded information  </span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">from</span>     
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">to</span>  
+          <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                    <span class="ruby-comment"># copy to new text area</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>
-  <span class="ruby-ivar">@keys</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>                                                          <span class="ruby-comment"># find end text_area type &quot;before&quot;</span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">k</span> <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_end</span>                                                          <span class="ruby-comment"># use this to format new preceeding data</span>
-      <span class="ruby-ivar">@block_end_index</span> = <span class="ruby-identifier">k</span>                                                    <span class="ruby-comment"># and new following &quot;before&quot; information</span>
-      <span class="ruby-ivar">@block_end_line</span>  = <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">values_at</span>(<span class="ruby-identifier">k</span>) 
-      <span class="ruby-ivar">@block_end_line</span>.<span class="ruby-identifier">flatten!</span>
-      <span class="ruby-ivar">@block_end_count</span> = <span class="ruby-ivar">@block_end_line</span>[<span class="ruby-value">1</span>]
-      <span class="ruby-keyword">break</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@block_end_line</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&quot;before&quot;</span>                                <span class="ruby-comment"># first one after k &gt; line_end</span>
-    <span class="ruby-keyword">else</span>
-      <span class="ruby-ivar">@block_end_index</span> = <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">length</span>                                  <span class="ruby-comment"># use end of file</span>
+  
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_write_lines</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>)
+    <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">tl</span><span class="ruby-operator">|</span>                                    <span class="ruby-comment"># original file </span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">from</span>                                      
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">to</span> 
+          <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">tl</span>[<span class="ruby-value">1</span>]])        <span class="ruby-comment"># copy to new text area</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  
+  <span class="ruby-comment"># This includes more lines in text_area for 1. Include additional lines</span>
+  <span class="ruby-comment"># It runs through text_area including new lines as specified.</span>
+  <span class="ruby-comment"># It also adjusts the exclude counts as needed.</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer_include</span>
+    <span class="ruby-identifier">p</span> <span class="ruby-string">&quot;text_mixer_include&quot;</span>
+<span class="ruby-comment">#    @user_interface = UserInterface.new</span>
+<span class="ruby-comment">    amount = @line_end - @line_start
+    stop_at = @line_start + amount
+    p &quot;amount #{amount} after #{@line_start} stop at #{stop_at}&quot;
+    p &quot;line_start          #{@line_start}&quot;
+    p &quot;line_end            #{@line_end}&quot;
+    p &quot;text_end            #{@text_end}&quot;
+    p &quot;block_start_index   #{@block_start_index}&quot;
+    p &quot;block end_index     #{@block_end_index}&quot;
+    p &quot;block_first         #{@block_first}&quot;
+    p &quot;block_last          #{@block_last}&quot;
+</span>    <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
+    <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_start</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                        <span class="ruby-comment"># copy to new text area</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-ivar">@block_start_index</span>      
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])    <span class="ruby-comment"># calculate new exclude count</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_end</span>
+        <span class="ruby-identifier">text_write_lines</span>(<span class="ruby-ivar">@line_start</span>, <span class="ruby-ivar">@line_end</span>)                  <span class="ruby-comment"># include these lines</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_end</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                        <span class="ruby-comment"># copy to new text area</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>  
+    <span class="ruby-keyword">return</span> <span class="ruby-ivar">@new_text_area</span>
+  <span class="ruby-keyword">end</span>
+  
+<span class="ruby-comment"># This excludes more lines in text_area for 2. Exclude additional lines</span>
+<span class="ruby-comment"># It runs through text_area including new lines as specified.</span>
+<span class="ruby-comment"># It also adjusts the exclude counts as needed.</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer_exclude</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-string">&quot;text_mixer_exclude&quot;</span>
+<span class="ruby-comment">#=begin</span>
+  <span class="ruby-identifier">amount</span> = <span class="ruby-ivar">@line_end</span> <span class="ruby-operator">-</span> <span class="ruby-ivar">@line_start</span>
+  <span class="ruby-identifier">stop_at</span> = <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">amount</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;amount #{amount} after #{@line_start} stop at #{stop_at}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_start          #{@line_start}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_end            #{@line_end}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;text_end            #{@text_end}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_start_index   #{@block_start_index}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block end_index     #{@block_end_index}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_first         #{@block_first}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_last          #{@block_last}&quot;</span>
+<span class="ruby-comment">#=end</span>
+  <span class="ruby-identifier">excluded</span>      = <span class="ruby-value">0</span>
+  <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
+  <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_start</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                          <span class="ruby-comment"># copy to new text area</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-ivar">@block_start_index</span>   
+      <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])        <span class="ruby-comment"># calculate new exclude count</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_end</span>
+      <span class="ruby-identifier">excluded</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+<span class="ruby-identifier">p</span> <span class="ruby-node">&quot;exclude #{ta} #{excluded}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_end</span>
+      <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">excluded</span>]) <span class="ruby-comment"># calculate new exclude count</span>
+      <span class="ruby-identifier">text_write_area</span>(<span class="ruby-ivar">@line_end</span>, <span class="ruby-ivar">@text_end</span>)                         <span class="ruby-comment"># include these lines</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>  
-  <span class="ruby-keyword">case</span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;1&quot;</span>
-    <span class="ruby-identifier">text_include</span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;2&quot;</span>
-    <span class="ruby-identifier">text_exclude</span> 
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;3&quot;</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_deletesx</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>) <span class="ruby-comment"># delete some lines </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;4&quot;</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_insert</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)  <span class="ruby-comment"># insert some lines </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;5&quot;</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_copy</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)    <span class="ruby-comment"># copy some lines </span>
-    <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;6&quot;</span>
-      <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_move</span>, <span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>, <span class="ruby-ivar">@arguments</span>)    <span class="ruby-comment"># move some lines </span>
-    <span class="ruby-keyword">else</span>
-    <span class="ruby-identifier">puts</span>(<span class="ruby-string">&quot;Exiting&quot;</span>)
-    <span class="ruby-identifier">exit</span>
-  <span class="ruby-keyword">end</span> 
+  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@new_text_area</span>
+<span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># This builds a hash table of excluded lines.</span>
+  <span class="ruby-comment"># * It runs a search history to support multiple excludes.</span>
+  <span class="ruby-comment"># * It does the Regexp matching for each pattern for each line.</span>
+  <span class="ruby-comment"># * Everything is counted and excluded until a match is found.</span>
+  <span class="ruby-comment"># * At that point the excluded count is written and text follows.</span>
+  <span class="ruby-comment"># This logic repeats until the &quot;after count is written at EOF.</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_exclude</span>(<span class="ruby-identifier">text_lines</span>)
+    <span class="ruby-identifier">text_area</span>     = {}
+    <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
+    <span class="ruby-identifier">line_number</span>   = <span class="ruby-value">-1</span>
+    <span class="ruby-identifier">last_line</span>     = <span class="ruby-value">-1</span>
+    <span class="ruby-identifier">last_text</span>     = <span class="ruby-string">&quot;&quot;</span>
+    <span class="ruby-identifier">found</span>         = <span class="ruby-keyword">false</span> 
+    <span class="ruby-identifier">after</span>         = <span class="ruby-keyword">false</span>  
+    <span class="ruby-identifier">text_lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line_number</span>, <span class="ruby-identifier">text</span><span class="ruby-operator">|</span>                           <span class="ruby-comment"># read the file line by line</span>
+      <span class="ruby-identifier">$search_history</span>.<span class="ruby-identifier">to_h</span>.<span class="ruby-identifier">each_pair</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">symbol</span>, <span class="ruby-identifier">pattern</span><span class="ruby-operator">|</span>            <span class="ruby-comment"># get the current search patterns</span>
+        <span class="ruby-ivar">@pattern</span> = <span class="ruby-identifier">pattern</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">pattern</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;&quot;</span>                      <span class="ruby-comment"># formal argument cannot be an instance variable</span>
+        <span class="ruby-identifier">found</span> = <span class="ruby-keyword">true</span> <span class="ruby-keyword">if</span> <span class="ruby-node">/#{Regexp.escape(pattern)}/</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">text</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">pattern</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;&quot;</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">found</span>                                                       <span class="ruby-comment"># is it what is being looked for?</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">exclude_count</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>                                         <span class="ruby-comment"># yes, only looked at this line?</span>
+          <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_number</span>, [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])    <span class="ruby-comment"># no, write out excluded line count</span>
+        <span class="ruby-keyword">end</span>                                                          <span class="ruby-comment"># end of if exclude_count &gt; 0</span>
+        <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_number</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">text</span>])               <span class="ruby-comment"># write out this line</span>
+        <span class="ruby-identifier">last_line</span>    = <span class="ruby-identifier">line_number</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>                                 <span class="ruby-comment"># save for end of file processing</span>
+        <span class="ruby-identifier">last_text</span>    = <span class="ruby-identifier">text</span>                                          <span class="ruby-comment"># save for end of file processing</span>
+        <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>                                            <span class="ruby-comment"># no lines have been excluded yet</span>
+      <span class="ruby-keyword">else</span>
+        <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_number</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;fill&quot;</span>, <span class="ruby-string">&quot;&quot;</span>])                 <span class="ruby-comment"># provides accurate line positioning</span>
+      <span class="ruby-keyword">end</span> 
+      <span class="ruby-identifier">exclude_count</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">found</span>                                <span class="ruby-comment"># if no match in this line</span>
+      <span class="ruby-identifier">found</span> = <span class="ruby-keyword">false</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">exclude_count</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span> 
+      <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_number</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;after&quot;</span>, <span class="ruby-identifier">exclude_count</span>])
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_area</span>
+  <span class="ruby-keyword">end</span>
+  
+  
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_deletex</span>(<span class="ruby-identifier">text_lines</span>)
+    <span class="ruby-ivar">@user_interface</span> = <span class="ruby-constant">UserInterface</span>.<span class="ruby-identifier">new</span>
+    <span class="ruby-identifier">text_area</span>    = {}
+    <span class="ruby-ivar">@line_actual</span> = <span class="ruby-value">-1</span>
+    <span class="ruby-identifier">found</span>        = <span class="ruby-keyword">false</span>    
+    <span class="ruby-identifier">text_lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line_num</span>, <span class="ruby-identifier">text</span><span class="ruby-operator">|</span>                              <span class="ruby-comment"># read the file line by line</span>
+      <span class="ruby-identifier">$search_history</span>.<span class="ruby-identifier">to_h</span>.<span class="ruby-identifier">each_pair</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">symbol</span>, <span class="ruby-identifier">pattern</span><span class="ruby-operator">|</span>            <span class="ruby-comment"># get the current search patterns</span>
+        <span class="ruby-identifier">found</span> = <span class="ruby-keyword">true</span> <span class="ruby-keyword">if</span> <span class="ruby-node">/#{Regexp.escape(pattern)}/</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">text</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">pattern</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;&quot;</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_num</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">text</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">found</span> <span class="ruby-comment"># write out this line            </span>
+      <span class="ruby-identifier">found</span> = <span class="ruby-keyword">false</span>
+    <span class="ruby-keyword">end</span> 
+    <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_area</span> 
+  <span class="ruby-keyword">end</span>
+  
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_deletenx</span>(<span class="ruby-identifier">text_lines</span>)
+    <span class="ruby-ivar">@user_interface</span> = <span class="ruby-constant">UserInterface</span>.<span class="ruby-identifier">new</span>
+    <span class="ruby-identifier">text_area</span>    = {}
+    <span class="ruby-ivar">@line_actual</span> = <span class="ruby-value">-1</span>
+    <span class="ruby-identifier">not_found</span>    = <span class="ruby-keyword">true</span>    
+    <span class="ruby-identifier">text_lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line_num</span>, <span class="ruby-identifier">text</span><span class="ruby-operator">|</span>                                <span class="ruby-comment"># read the file line by line</span>
+      <span class="ruby-identifier">$search_history</span>.<span class="ruby-identifier">to_h</span>.<span class="ruby-identifier">each_pair</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">symbol</span>, <span class="ruby-identifier">pattern</span><span class="ruby-operator">|</span>              <span class="ruby-comment"># get the current search patterns</span>
+        <span class="ruby-identifier">not_found</span> = <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-node">/#{Regexp.escape(pattern)}/</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">text</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">pattern</span> <span class="ruby-operator">==</span> <span class="ruby-string">&quot;&quot;</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">line_num</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">text</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">not_found</span> <span class="ruby-comment"># write out this line if not found</span>
+      <span class="ruby-identifier">not_found</span> = <span class="ruby-keyword">true</span>
+    <span class="ruby-keyword">end</span> 
+    <span class="ruby-keyword">return</span> <span class="ruby-identifier">text_area</span> 
+  <span class="ruby-keyword">end</span>
+
 <span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-text_mixer_exclude" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">text_mixer_exclude</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>This excludes more lines in text_area for 2. Exclude additional lines It
+runs through text_area including new lines as specified. It also adjusts
+the exclude counts as needed.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="text_mixer_exclude-source">
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 152</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer_exclude</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-string">&quot;text_mixer_exclude&quot;</span>
+<span class="ruby-comment">#=begin</span>
+  <span class="ruby-identifier">amount</span> = <span class="ruby-ivar">@line_end</span> <span class="ruby-operator">-</span> <span class="ruby-ivar">@line_start</span>
+  <span class="ruby-identifier">stop_at</span> = <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">amount</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;amount #{amount} after #{@line_start} stop at #{stop_at}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_start          #{@line_start}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;line_end            #{@line_end}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;text_end            #{@text_end}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_start_index   #{@block_start_index}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block end_index     #{@block_end_index}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_first         #{@block_first}&quot;</span>
+  <span class="ruby-identifier">p</span> <span class="ruby-node">&quot;block_last          #{@block_last}&quot;</span>
+<span class="ruby-comment">#=end</span>
+  <span class="ruby-identifier">excluded</span>      = <span class="ruby-value">0</span>
+  <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
+  <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_start</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                          <span class="ruby-comment"># copy to new text area</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-ivar">@block_start_index</span>   
+      <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])        <span class="ruby-comment"># calculate new exclude count</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_end</span>
+      <span class="ruby-identifier">excluded</span> <span class="ruby-operator">+=</span> <span class="ruby-value">1</span>
+<span class="ruby-identifier">p</span> <span class="ruby-node">&quot;exclude #{ta} #{excluded}&quot;</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_end</span>
+      <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">excluded</span>]) <span class="ruby-comment"># calculate new exclude count</span>
+      <span class="ruby-identifier">text_write_area</span>(<span class="ruby-ivar">@line_end</span>, <span class="ruby-ivar">@text_end</span>)                         <span class="ruby-comment"># include these lines</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>  
+  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@new_text_area</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-text_mixer_include" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">text_mixer_include</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>This includes more lines in text_area for 1. Include additional lines It
+runs through text_area including new lines as specified. It also adjusts
+the exclude counts as needed.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="text_mixer_include-source">
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 116</span>
+  <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_mixer_include</span>
+    <span class="ruby-identifier">p</span> <span class="ruby-string">&quot;text_mixer_include&quot;</span>
+<span class="ruby-comment">#    @user_interface = UserInterface.new</span>
+<span class="ruby-comment">    amount = @line_end - @line_start
+    stop_at = @line_start + amount
+    p &quot;amount #{amount} after #{@line_start} stop at #{stop_at}&quot;
+    p &quot;line_start          #{@line_start}&quot;
+    p &quot;line_end            #{@line_end}&quot;
+    p &quot;text_end            #{@text_end}&quot;
+    p &quot;block_start_index   #{@block_start_index}&quot;
+    p &quot;block end_index     #{@block_end_index}&quot;
+    p &quot;block_first         #{@block_first}&quot;
+    p &quot;block_last          #{@block_last}&quot;
+</span>    <span class="ruby-identifier">exclude_count</span> = <span class="ruby-value">0</span>
+    <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_start</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                        <span class="ruby-comment"># copy to new text area</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">==</span> <span class="ruby-ivar">@block_start_index</span>      
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;before&quot;</span>, <span class="ruby-identifier">exclude_count</span>])    <span class="ruby-comment"># calculate new exclude count</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-ivar">@line_start</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-ivar">@line_end</span>
+        <span class="ruby-identifier">text_write_lines</span>(<span class="ruby-ivar">@line_start</span>, <span class="ruby-ivar">@line_end</span>)                  <span class="ruby-comment"># include these lines</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@line_end</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                        <span class="ruby-comment"># copy to new text area</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>  
+    <span class="ruby-keyword">return</span> <span class="ruby-ivar">@new_text_area</span>
+  <span class="ruby-keyword">end</span></pre>
           </div>
           
         </div>
@@ -546,10 +795,10 @@ line] as an array parameters are normalized to act as a range</p>
 
           
           <div class="method-source-code" id="text_write_area-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 81</span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 93</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_write_area</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>)
-  <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>                                    <span class="ruby-comment"># area containing excluded information  </span>
-    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">from</span>    
+  <span class="ruby-ivar">@text_area</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ta</span><span class="ruby-operator">|</span>                                     <span class="ruby-comment"># area containing excluded information  </span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">from</span>     
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">to</span>  
         <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">ta</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">ta</span>[<span class="ruby-value">1</span>])                    <span class="ruby-comment"># copy to new text area</span>
       <span class="ruby-keyword">end</span>
@@ -585,12 +834,12 @@ line] as an array parameters are normalized to act as a range</p>
 
           
           <div class="method-source-code" id="text_write_lines-source">
-            <pre><span class="ruby-comment"># File TextProcessor.rb, line 91</span>
+            <pre><span class="ruby-comment"># File TextProcessor.rb, line 103</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">text_write_lines</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>)
   <span class="ruby-ivar">@text_lines</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">tl</span><span class="ruby-operator">|</span>                                    <span class="ruby-comment"># original file </span>
     <span class="ruby-keyword">if</span> <span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&gt;=</span> <span class="ruby-identifier">from</span>                                      
       <span class="ruby-keyword">if</span> <span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">to</span> 
-        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>], [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">tl</span>[<span class="ruby-value">1</span>]])          <span class="ruby-comment"># copy to new text area</span>
+        <span class="ruby-ivar">@new_text_area</span>.<span class="ruby-identifier">store</span>(<span class="ruby-identifier">tl</span>[<span class="ruby-value">0</span>]<span class="ruby-operator">+</span><span class="ruby-value">1</span>, [<span class="ruby-string">&quot;text&quot;</span>, <span class="ruby-identifier">tl</span>[<span class="ruby-value">1</span>]])        <span class="ruby-comment"># copy to new text area</span>
       <span class="ruby-keyword">end</span>
     <span class="ruby-keyword">end</span>
   <span class="ruby-keyword">end</span>

@@ -132,9 +132,7 @@ class FileManager
       @file = "#{selection}"
     end
     file_history_push(@file)                                                # store it 
-#    user_pattern                                                           # update search_history
     text_lines = file_open(@file, "r")                                      # open for read
-#    @text_processor.send(:text_exclude, text_lines)                        # exclude 
     return text_lines
   end  
   

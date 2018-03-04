@@ -10,9 +10,9 @@ class TestRing < Test::Unit::TestCase
   def setup
     @user_interface = UserInterface.new
     @text_processor = TextProcessor.new
-    @file_manager  = FileManager.new
+    @file_manager   = FileManager.new
     # set up control structure for file names
-    $file_history = OpenStruct.new(:file01 => "", :file02 => "", :file03 => "", :file04 => "", :file05 => "", :file06 => "", :file07 => "", :file08 => "", :file09 => "")
+    $file_history   = OpenStruct.new(:file01 => "", :file02 => "", :file03 => "", :file04 => "", :file05 => "", :file06 => "", :file07 => "", :file08 => "", :file09 => "")
     # set up control structure for search strings
     $search_history = OpenStruct.new(:search01 => "", :search02 => "", :search03 => "", :search04 => "", :search05 => "", :search06 => "", :search07 => "", :search08 => "", :search09 => "")
   end
@@ -29,11 +29,18 @@ class TestRing < Test::Unit::TestCase
     #            text_lines = file_open(@file, "r")                           open the file to get started  
     pattern    = @user_interface.send(:user_pattern)
     #            $search_history["#{index}"] = "#{@pattern}"                  store it for TextProcessor class 
-                 assert_not_nil(pattern)  
-    text_area  = @text_processor.send(:text_exclude, text_lines)
-    selection  = @user_interface.send(:user_display, text_area)
-    #            user_options() after original exclude display is presented
-
+    #
+    #                                                                         text_area internally maps the displayed result   
+    text_area =  @text_processor.send(:text_exclude, text_lines)
+                 while                                                      # Exit is contained in def user_prompt_options(text_area)  
+    text_area =  @user_interface.send(:user_display, text_area)             # Each option below displays the text_area returned
+                 end 
+                 
+                 p text_area                                                 
+    #            user_prompt_options()                                               after original exclude display is presented other options are provided:
+    #            @text_processor.send(:text_exclude, text_lines)              additional excludes
+    #            @text_processor.send(:text_deletex, text_lines)              delete all excluded lines 
+    #            
   end
    
 end

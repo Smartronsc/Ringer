@@ -1,6 +1,6 @@
 class UserInterface
 
-  # use assoc(line number) for line commands
+  
   def initialize
     @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
@@ -64,8 +64,8 @@ class UserInterface
   #  3. Delete all not excluded text     
   #  4. Range functions                  
   #  5. Write to file                 
-  #
-  def user_options(text_area)
+  # These are the initial fundamental quick look options 
+  def user_prompt_options(text_area)
     puts <<-DELIMITER
     1. Include additional search pattern
     2. Delete all excluded text
@@ -82,24 +82,25 @@ class UserInterface
         user_pattern                                                          # update search_history 
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it 
-        @text_processor.send(:text_exclude, text_lines)                       # additional excludes  
+        @text_area = @text_processor.send(:text_exclude, text_lines)          # additional excludes  
       when "2"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_processor.send(:text_deletex, text_lines)                       # delete all excluded lines  
+        @text_area = @text_processor.send(:text_deletex, text_lines)          # delete all excluded lines  
       when "3"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_processor.send(:text_deletenx, text_lines)                      # delete all non excluded lines  
+        @text_area = @text_processor.send(:text_deletenx, text_lines)         # delete all non excluded lines  
       when "4"
-        user_ranges(text_area, text_lines)    
+#      user_display(text_area)
+      @text_area = user_prompt_ranges(text_area, text_lines)    
       when "5"
         path = user_prompt_write  
       else
       puts("Exiting")
       exit
     end
-    return selection
+    return @text_area
   end
   
   def user_prompt_write
@@ -168,7 +169,7 @@ class UserInterface
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------"
       end 
     end 
-    selection = user_options(text_area)
+    selection = user_prompt_options(text_area)
     return selection
   end
   # Regexp pattern matching is used for the line exclude function.
@@ -193,19 +194,32 @@ class UserInterface
     end
     return @pattern
   end
-  
-  def user_ranges(text_area, text_lines)
+    # After the initial exclude request you may want some modifications.
+    # They are presented in logical pairs.
+    #  1. Include additional lines
+    #  2. Exclude additional lines
+    #  3. Delete included lines   
+    #  4. Delete excluded lines   
+    #  5. Insert lines            
+    #  6. Delete lines            
+    #  7. Copy lines              
+    #  8. Move lines  
+    #  9. Write to file                            
+    # These options let you work with the data 
+  def user_prompt_ranges(text_area, text_lines)
     puts <<-DELIMITER
-    1. Select lines to be included
+    1. Include additional lines
     2. Exclude additional lines
-    3. Delete lines shown or excluded
-    4. Insert lines
-    5. Copy lines 
-    6. Move lines
+    3. Delete included lines
+    4. Delete excluded lines
+    5. Insert lines
+    6. Delete lines
+    7. Copy lines 
+    8. Move lines
+    9. Write to file
     
-    Type your selection, a range or a single number amount with an "after" location
-    For example 1 5..12 range to include or 1 7 5 the 7 lines after line 5
-    Enter 6 10 0 or 6 10..20 0 to move lines 10 to 20 before line 1\n
+    Enter the action and a range or a single number amount with an "after" location
+    Enter 1 5..12   for a range or 1 7 5 for the 7 lines after line 5 to be included
       DELIMITER
     index = 1
     ARGF.each do |selection|
@@ -232,7 +246,7 @@ class UserInterface
 
       if selection_split.length < 3                                                  # check length entered
         puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
-        user_ranges(text_area, text_lines)                                                        # ask again for input
+        user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
       end
 
       @arguments = selection_split                                                      
