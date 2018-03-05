@@ -42,3 +42,4 @@ text_area =   @user_interface.send(:user_display, text_area)            # Each o
 # 
 # Additional development notes:
 # use assoc(line number) for line commands           
+             

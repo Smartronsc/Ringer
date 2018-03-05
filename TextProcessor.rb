@@ -66,8 +66,8 @@ class TextProcessor
       end
     end
     @keys.each do |k|                                                          # find prior text_area of type "before"
-      if k < @line_start                                                       # use this to format new excluded data
-        @block_prior_index = k                                                 # making this the possible "prior" block
+      if k <= @line_start                                                      # use this to format new excluded data
+        @block_prior_index = k                                                 # make this the possible "prior" block
         @block_prior_line = text_area.values_at(k)                             # get control using line number as key
         @block_prior_line.flatten!                                             # comes back as one array too many
         if @block_prior_line[0] == "before"                                    # if this is a "before" control
@@ -183,26 +183,40 @@ def text_mixer_exclude
   excluded      = 0
   exclude_count = 0
   @text_area.each do |ta|
-      if ta[0] < @line_start
-        @new_text_area.store(ta[0], ta[1])                          # copy to new text area
-    end
-    if ta[0] == @line_start                                         # start of exclusion
-      if @line_start == @block_prior_index + 1                      # first exclude joins existing exclude
-        exclude_count = @line_end+1 - @line_start + @block_prior_count
-        @new_text_area.store(ta[0]-1, ["before", exclude_count])      # new exclude count
-          p "here 1"
+    if ta[0] < @line_start
+      @new_text_area.store(ta[0], ta[1])                              # copy to new text area
+    end   
+    if ta[0] == @line_start                                           # start of exclusion
+      if @line_start == @block_prior_index || @line_start == @block_prior_index + 1 # continues existing exclude                                                                                          
+        if @line_end >= @block_end_index - @block_end_count           # exclude overlaps two existing excludes
+          if @line_start == @block_prior_index
+            exclude_count = ((@block_end_index) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
+          else
+            exclude_count = ((@block_end_index+1) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
+          end
+          @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count
+        else
+          exclude_count = @line_end+1 - @line_start + @block_prior_count
+          @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count      
+        end
       else
         exclude_count = @block_start_index - @line_start    
         @new_text_area.store(ta[0]-1, ["before", exclude_count])      # new exclude count
-          p "here 2"
       end
     end
-    if ta[0] >= @line_start && ta[0] <= @line_end
-      excluded += 1
-      p "exclude #{ta} #{excluded}"
-    end
     if ta[0] > @line_end
-      @new_text_area.store(ta[0]-1, ["before", exclude_count + excluded]) # calculate new exclude count
+      if @line_end < @block_end_index - @block_end_count              # end exclude does not overlap
+        if @line_start == @block_prior_index + 1                      # first exclude joins existing exclude
+          exclude_count = ((@line_end+1) - @line_start) + @block_prior_count
+          @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count
+        else
+          exclude_count = ((@line_end+1) - @line_start)
+          @new_text_area.store(ta[0]-1, ["before", exclude_count])    # calculate new exclude count
+        end
+      end
+      if @line_end >= @block_end_index - @block_end_count             # exclude overlaps end exclude  
+        @line_end = @block_end_index
+      end
       text_write_area(@line_end+1, @text_end)                         # include these lines
     end
   end  
