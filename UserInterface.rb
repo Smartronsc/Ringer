@@ -6,7 +6,10 @@ class UserInterface
     @text_processor = TextProcessor.new
     @file = ""                                                            # gets built by user_prompt
   end
-  
+  # The real value of something like this in a command line interfaces is to be able to save to disk.
+  # Of course that is easy to do but since I never really work in the command line I forgot.
+  # Thus we start out here with a standard tree directory (for the time being only Linux).
+  # This is for the input file but you have to start somewhere.
   def user_file_read
     puts 'Enter file name or "enter" for directory' 
     selection = ""
@@ -23,13 +26,13 @@ class UserInterface
     end
     return @file_name
   end
-  
+  # List the files from a directory with an index number so it can be selected
   def user_selection(file_information)
-    key        = "root"                                                   # linux support only for now
-    file_break = ""                                                       # save for "break"
-    index      = 0                                                        # for user selection
-    number    = 0                                                         # for selection from table  
-    ui        = {} 
+    key         = "root"                                                   # linux support only for now
+#    file_break = ""                                                       # save for "break"
+    index       = 0                                                        # for user selection
+    number      = 0                                                        # for selection from table  
+    ui          = {} 
     # build display for user selection
     file_information.each_pair do |directory, files|
       if files.length > 1
@@ -86,11 +89,11 @@ class UserInterface
       when "2"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_area = @text_processor.send(:text_deletex, text_lines)          # delete all excluded lines  
+        @text_area = @text_processor.send(:text_delete_x, text_lines)          # delete all excluded lines  
       when "3"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_area = @text_processor.send(:text_deletenx, text_lines)         # delete all non excluded lines  
+        @text_area = @text_processor.send(:text_delete_nx, text_lines)         # delete all non excluded lines  
       when "4"
 #      user_display(text_area)
       @text_area = user_prompt_ranges(text_area, text_lines)    
@@ -102,7 +105,8 @@ class UserInterface
     end
     return @text_area
   end
-  
+  # File output starts in the directory of the current file.
+  # The assumption is one will want to keep things together or over write the current file.
   def user_prompt_write
     @choice = ""
     @path  = ""
@@ -152,8 +156,10 @@ class UserInterface
     end
     exit
   end
-  # The first entry in to the utility ends up here.\n
-  # All the other functions also end up here since this is a visual tool.\n
+  # The first entry in to the utility ends up here.
+  # All the other functions also end up here since this is a visual tool.
+  # Everything for formatting the display is done in the text_area.
+  # Any need adjustmest to the display are done based on the controls "before" and "after"
   def user_display(text_area)
     @text_area = text_area                                                  # save for user_write
     puts"======== ====5====1====5====2====5====3====5====4====5====5====5====6====5====7====5====8====5====9====5====0====5====1====5====2====5=="

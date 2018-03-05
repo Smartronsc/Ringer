@@ -38,7 +38,7 @@ text_area =   @user_interface.send(:user_display, text_area)            # Each o
               p text_area                                                 
 #             user_options()                                              after original exclude display is presented other options are provided:
 #             @text_processor.send(:text_exclude, text_lines)             additional excludes
-#             @text_processor.send(:text_deletex, text_lines)             delete all excluded lines 
+#             @text_processor.send(:text_delete_x, text_lines)             delete all excluded lines 
 # 
 # Additional development notes:
 # use assoc(line number) for line commands           
