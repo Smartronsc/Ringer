@@ -1,22 +1,21 @@
 class UserInterface
 
-  
   def initialize
     @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
-    @file = ""                                                            # gets built by user_prompt
+    @file_name = ""                                                       # gets built by user_prompt
   end
   # The real value of something like this in a command line interfaces is to be able to save to disk.
   # Of course that is easy to do but since I never really work in the command line I forgot.
   # Thus we start out here with a standard tree directory (for the time being only Linux).
   # This is for the input file but you have to start somewhere.
   def user_file_read
-    puts 'Enter file name or "enter" for directory' 
     selection = ""
     file_information = {}
+    puts 'Enter file name or "enter" for directory' 
     ARGF.each_line do |file|
-      @file = file.chomp!                                                  
-      if @file == ""
+      @file_name = file.chomp!  
+      if @file_name == ""
         # initial load of $file_information dealing with / (root) and /home
         directories = @file_manager.send(:file_get_initialization)
         file_information = @file_manager.send(:file_get_files, directories) 
@@ -24,13 +23,14 @@ class UserInterface
       end
       break
     end
+    p @file_name
     return @file_name
   end
   # List the files from a directory with an index number so it can be selected
   def user_selection(file_information)
-    key         = "root"                                                   # linux support only for now
-#    file_break = ""                                                       # save for "break"
-    index       = 0                                                        # for user selection
+    key        = "root"                                                  # linux support only for now
+#    file_break = ""                                                      # save for "break"
+    index      = 0                                                        # for user selection
     number      = 0                                                        # for selection from table  
     ui          = {} 
     # build display for user selection
@@ -63,10 +63,11 @@ class UserInterface
   # Everything up until this point has been assumed to be an exclude request.
   # Now addition features are provided.
   #  1. Include additional search pattern
-  #  2. Delete all excluded text         
-  #  3. Delete all not excluded text     
+  #  2. Delete all excluded text        
+  #  3. Delete all not excluded text    
   #  4. Range functions                  
-  #  5. Write to file                 
+  #  5. Write to file  
+  #  6. Exit              
   # These are the initial fundamental quick look options 
   def user_prompt_options(text_area)
     puts <<-DELIMITER
@@ -74,7 +75,8 @@ class UserInterface
     2. Delete all excluded text
     3. Delete all not excluded text
     4. Range functions
-    5. Write to file\n
+    5. Write to file
+    6. Exit
       DELIMITER
     ARGF.each do |selection|
       @selection = selection.chomp!                                                          
@@ -93,12 +95,13 @@ class UserInterface
       when "3"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_area = @text_processor.send(:text_delete_nx, text_lines)         # delete all non excluded lines  
+        @text_area = @text_processor.send(:text_delete_nx, text_lines)        # delete all non excluded lines  
       when "4"
-#      user_display(text_area)
-      @text_area = user_prompt_ranges(text_area, text_lines)    
+        @text_area = user_prompt_ranges(text_area, text_lines)    
       when "5"
         path = user_prompt_write  
+      when "6"
+        exit  
       else
       puts("Exiting")
       exit
@@ -204,8 +207,8 @@ class UserInterface
     # They are presented in logical pairs.
     #  1. Include additional lines
     #  2. Exclude additional lines
-    #  3. Delete included lines   
-    #  4. Delete excluded lines   
+    #  3. Delete included lines  
+    #  4. Delete excluded lines  
     #  5. Insert lines            
     #  6. Delete lines            
     #  7. Copy lines              
@@ -225,9 +228,10 @@ class UserInterface
     9. Write to file
     
     Enter the action and a range or a single number amount with an "after" location
-    Enter 1 5..12   for a range or 1 7 5 for the 7 lines after line 5 to be included
+    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included
       DELIMITER
     index = 1
+    p ARGF.file
     ARGF.each do |selection|
       selection = selection.chomp!
       selection_split = selection.split(" ")  

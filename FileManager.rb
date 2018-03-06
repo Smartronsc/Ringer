@@ -1,3 +1,4 @@
+
 class FileManager
   
   # set up the data collection
@@ -137,10 +138,10 @@ class FileManager
   end  
   
   def file_selection(file_information)
-    key        = "root"                                                     # linux support only for now
-    file_break = ""                                                         # save for "break"
+    key        = "root"                                                    # linux support only for now
+    file_break = ""                                                        # save for "break"
     index      = 0                                                          # for user selection
-    number    = 0                                                           # for selection from table  
+    number    = 0                                                          # for selection from table  
     ui        = {} 
     # build display for user selection
     file_information.each_pair do |directory, files|
