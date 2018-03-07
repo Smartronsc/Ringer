@@ -319,7 +319,7 @@ end
       end
       if ta[0] >= @line_start && ta[0] <= @line_end
         ta1 = ta[1]                                                    # get [type, data]
-        @new_text_area.store(ta[0], ta[1]) if ta1[0] == "text"          # copy to new text area                                    
+        @new_text_area.store(ta[0], ta[1]) if ta1[0] == "text"          # copy to new text area                            
       end
       if ta[0] > @line_end
         if @line_end < @block_end_index - @block_end_count              # end exclude does not overlap

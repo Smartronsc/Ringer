@@ -5,6 +5,8 @@ require './TextProcessor.rb'
 require './FileManager.rb'
 require 'ostruct'
 
+$mode = "live"
+
 @user_interface = UserInterface.new
 @text_processor = TextProcessor.new
 @file_manager  = FileManager.new
@@ -20,6 +22,7 @@ $file_history = OpenStruct.new(:file01 => "", :file02 => "", :file03 => "", :fil
 $search_history = OpenStruct.new(:search01 => "", :search02 => "", :search03 => "", :search04 => "", :search05 => "", :search06 => "", :search07 => "", :search08 => "", :search09 => "")
 #             Enter file name or "enter" for directory
 file_name  =  @user_interface.send(:user_file_read)
+              p "Ring file name #{file_name}"
 #             @file_name = user_selection(file_information)
 text_lines =  @file_manager.send(:file_directory, file_name)
               p text_lines

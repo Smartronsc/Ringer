@@ -1,10 +1,13 @@
-
 class FileManager
+  
+  def initialization
+
+    @current_directory = "" 
+  end
   
   # set up the data collection
   def file_get_initialization(structure = ENV["HOME"])                # this is linux specific for now
     @file_information = {}                                            # {"/directory"=>["file"], "/directory/directory"=>["file", "file"]
-    @current_directory = "" 
     files = [] 
     directory = ""
     directories = []                                                  
@@ -38,9 +41,10 @@ class FileManager
   end
       
   def file_get_more_information(directory) 
+    p "file_get_more_information directory #{directory}"
     @files = []
-    @file_information.clear
-    directory = "#{@current_directory}/#{directory}" 
+#    @file_information.clear
+    directory = "#{@current_directory}/#{directory}" unless @current_directory == ""
     @current_directory = directory                                                    
     Dir.chdir("#{directory}")                                      
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
@@ -51,6 +55,7 @@ class FileManager
   end
   
   def file_open(file, mode = "r")
+    p file
     handle = File.open("#{file}","#{mode}")
     text_lines = {}
     file_in = handle.readlines
@@ -119,6 +124,7 @@ class FileManager
   # * It then records the file in history and returns the file name.
   def file_directory(selection)
     while File.directory?(selection)
+      p "file_directory selection #{selection}"
       @file_information = file_get_more_information(selection) 
       selection = file_selection(@file_information)
       unless File.directory?(selection)
@@ -130,7 +136,8 @@ class FileManager
         files.each { |file| @file = "#{directory}/#{file.to_s}" if file == selection }
       end
     else
-      @file = "#{selection}"
+      @file = selection
+        p "file_directory file #{@file}"
     end
     file_history_push(@file)                                                # store it 
     text_lines = file_open(@file, "r")                                      # open for read
@@ -162,10 +169,10 @@ class FileManager
       end
     end
     # parse user selection
-    ARGF.each_line do |selection|                                          
+    selection = ARGF.readline                                         
       number = selection.chomp!.to_i
-      break if (0..index).include?(number.to_i)                            # index reused from above  
-    end
+  #      break if (0..index).include?(number.to_i)                            # index reused from above  
+ 
     file_name = ui[number]                                                  # get selection from UI table 
   end
 end # class FileManager
