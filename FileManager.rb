@@ -41,16 +41,14 @@ class FileManager
   end
       
   def file_get_more_information(directory) 
-    p "file_get_more_information directory #{directory}"
     @files = []
-#    @file_information.clear
+    @file_information = {}                                            # {"/directory"=>["file"], "/directory/directory"=>["file", "file"]
     directory = "#{@current_directory}/#{directory}" unless @current_directory == ""
     @current_directory = directory                                                    
     Dir.chdir("#{directory}")                                      
     Dir.foreach("#{directory}") { |d| @files.push(d) unless d == "." || d == ".." }
     @file_information.store(directory, @files)
     @files = []
-    p "1 @file_information #{@file_information}"
     return @file_information
   end
   
@@ -168,11 +166,18 @@ class FileManager
         end
       end
     end
-    # parse user selection
-    selection = ARGF.readline                                         
+    unless $mode == "test"                                                        # global test switch
+      ARGF.each_line do |selection|                                                    
+        @selection = file.chomp! 
+        number = selection.chomp!.to_i
+        break if (0..index).include?(number.to_i)                            # index reused from above  
+      end
+      file_name = ui[number]                                                  # get selection from UI table 
+    else
+      file = ARGF.readline
+      @selection = file.chomp! 
       number = selection.chomp!.to_i
-  #      break if (0..index).include?(number.to_i)                            # index reused from above  
- 
-    file_name = ui[number]                                                  # get selection from UI table 
+      file_name = ui[number]                                                  # get selection from UI table 
+    end
   end
 end # class FileManager

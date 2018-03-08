@@ -66,11 +66,8 @@ class UserInterface
         if @file_name == ""
           # initial load of $file_information dealing with / (root) and /home
           directories = @file_manager.send(:file_get_initialization)
-          p "directories #{directories}"
           file_information = @file_manager.send(:file_get_files, directories) 
-          p file_information
           @file_name = user_selection(file_information)
-          p @file_name
         end
         break
       end
@@ -84,14 +81,13 @@ class UserInterface
         @file_name = user_selection(file_information)
       end
     end
-    p "user_file_read #{@file_name}"
     return @file_name
   end
   # List the files from a directory with an index number so it can be selected
   def user_selection(file_information)
     key        = "root"                                                      # linux support only for now
-#    file_break = ""                                                         # save for "break"
-    index      = 0                                                           # for user selection
+#    file_break = ""                                                        # save for "break"
+    index      = 0                                                          # for user selection
     number      = 0                                                          # for selection from table  
     ui          = {} 
     # build display for user selection
@@ -113,14 +109,14 @@ class UserInterface
         end
       end
     end
-    unless $mode == "test"                                                   # global test switch
+    unless $mode == "test"                                                  # global test switch
       ARGF.each_line do |selection|                                          
         number = selection.chomp!.to_i
         break if (0..index).include?(number.to_i)                            # index reused from above  
       end
       file_name = "#{@directory}/#{ui[number]}"                              # get selection from UI table 
     else
-      file_name = ARGF.readline                                              # input from command file                                          
+      file_name = ARGF.readline                                              # input from command file                    
       p "UI #{file_name}" 
     end
   end
@@ -143,21 +139,20 @@ class UserInterface
     5. Write to file
     6. Exit
       DELIMITER
-    unless $mode == "test"                                                   # global test switch
+    unless $mode == "test"                                                  # global test switch
       ARGF.each_line do |selection|                                          
-        number = selection.chomp!.to_i
-        break if (0..index).include?(number.to_i)                            # index reused from above  
+        @selection = selection.chomp!.to_i
+        break if (0..6).include?(@selection)                       
       end
-      file_name = "#{@directory}/#{ui[number]}"                              # get selection from UI table 
     else
       begin
-        selection = ARGF.readline
+        @selection = ARGF.readline
         rescue EOFError
         exit
       end
     end
-    @selection = selection.chomp!
-    case @selection
+    p @selection.chomp.to_s
+    case @selection.chomp.to_s
       when "1"
         user_pattern                                                          # update search_history 
         current_file = @file_manager.send(:file_history_current)              # get the current file
@@ -260,41 +255,40 @@ class UserInterface
     Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included
       DELIMITER
     index = 1
-    @liner
-#    selection = ARGF.readline
-    ARGF.each_line do |line|
-#  puts ARGF.filename if ARGF.lineno == 1
-#  puts "#{ARGF.lineno}: #{line}"
-  @liner = line
-
-end
-            p @liner
-      selection_split = @liner.split(" ")  
-      selection_split.each do |s|                                                  # check for range indicated
-        if s.include?("...")                                                      # range given?  
-          range_split = s.split("...")                                            # yes, split it for first and last
-          selection_split[1] = range_split[0]                                    
-          selection_split[2] = range_split[1].to_i - 1  
-          selection_split[2] = selection_split[2].to_s                            # stay with strings
-        end                                    
-        if s.include?("..")                                                        # range given?  
-          range_split = s.split("..")                                              # yes, split it for first and last
-          selection_split[1] = range_split[0]                                    
-          selection_split[2] = range_split[1] 
-        end
+    selection = ""
+    unless $mode == "test"                                                        # global test switch
+      ARGF.each_line do |selection_range|                                          
+        selection_range = selection_range.chomp!
+        @selection_split = selection_range.split(" ")                              # check if selection is valid  
+        break if (0..9).include?(@selection_split[0].to_i)                         # index reused from above  
+      end                              
+    else
+      selection = ARGF.readline
+      @selection_split = selection.split(" ") 
+    end
+    @selection_split.each do |s|                                                # check for range indicated
+      if s.include?("...")                                                      # range given?  
+        range_split = s.split("...")                                            # yes, split it for first and last
+        @selection_split[1] = range_split[0]                                    
+        @selection_split[2] = range_split[1].to_i - 1  
+        @selection_split[2] = selection_split[2].to_s                            # stay with strings
+      end                                    
+      if s.include?("..")                                                        # range given?  
+        range_split = s.split("..")                                              # yes, split it for first and last
+        @selection_split[1] = range_split[0]                                    
+        @selection_split[2] = range_split[1] 
       end
-#    unless selection.match('\.')
-      unless @liner.match('\.')
-        selection_split[2] = selection_split[1].to_i + selection_split[2].to_i
-        selection_split[1].to_s
-        selection_split[2].to_s                                      
-      end
-      if selection_split.length < 3                                                  # check length entered
-        puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
-        user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
-      end
-      @arguments = selection_split                                                      
-#      break
+    end
+    unless selection.match('\.')
+      @selection_split[2] = @selection_split[1].to_i + @selection_split[2].to_i
+      @selection_split[1].to_s
+      @selection_split[2].to_s                                      
+    end
+    if @selection_split.length < 3                                                  # check length entered
+      puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
+      user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
+    end
+    @arguments = @selection_split  
     @text_processor.send(:text_mixer, text_area, @arguments)
   end
   

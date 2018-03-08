@@ -32,13 +32,15 @@ class TestRing < Test::Unit::TestCase
                 assert(pattern == "rs", ":user_pattern in test_ring got #{pattern} so some thing about the test commands changed")
     #            $search_history["#{index}"] = "#{@pattern}"                store it for TextProcessor class 
     #                                                                        text_area internally maps the displayed result  
-    text_area = @text_processor.send(:text_exclude, text_lines)
-                assert(text_area.length == 40, ":text_exclude in test_ring got #{text_area.length} so something about the test data changed")
+    text_area  = @text_processor.send(:text_exclude, text_lines)
+    #            assert valiates the test data which being the testdata is always correct but the length seeems to vary a lot
+                assert(text_area.length == 40, ":text_exclude in test_ring got #{text_area.length} so something about UserInterface::text_exclude may have changed")
                 while                                                      # Exit is contained in def user_prompt_options  
-    text_area = @user_interface.send(:user_display, text_area)            # Each option below displays the text_area returned 
-                assert(text_area.length == 29, ":user_display in test_ring output data is displayed incorrectly, expecting length of #{text_area.length}")
+    text_area  = @user_interface.send(:user_display, text_area)            # Each option below displays the text_area returned
+    #            if something about UserInterface::user_display is broken or UserInterface::text_exclude may have changed
+                assert(text_area.length == 12, ":user_display in test_ring output data is displayed incorrectly, expecting length of #{text_area.length}")
                 end 
-    #          user_prompt_options()                                        after original exclude display is presented other options are provided:
+    #            user_prompt_options()                                        after original exclude display is presented other options are provided:
     #          @text_processor.send(:text_exclude, text_lines)              additional excludes
     #          @text_processor.send(:text_delete_x, text_lines)            delete all excluded lines 
     #            
