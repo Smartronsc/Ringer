@@ -53,7 +53,6 @@ class FileManager
   end
   
   def file_open(file, mode = "r")
-    p file
     handle = File.open("#{file}","#{mode}")
     text_lines = {}
     file_in = handle.readlines
@@ -122,7 +121,6 @@ class FileManager
   # * It then records the file in history and returns the file name.
   def file_directory(selection)
     while File.directory?(selection)
-      p "file_directory selection #{selection}"
       @file_information = file_get_more_information(selection) 
       selection = file_selection(@file_information)
       unless File.directory?(selection)
@@ -135,7 +133,6 @@ class FileManager
       end
     else
       @file = selection
-        p "file_directory file #{@file}"
     end
     file_history_push(@file)                                                # store it 
     text_lines = file_open(@file, "r")                                      # open for read

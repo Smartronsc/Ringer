@@ -47,7 +47,6 @@ class UserInterface
       end 
     end 
     selection = user_prompt_options(text_area)
-    p "mode #{$mode}"
     return selection
   end
 
@@ -86,7 +85,6 @@ class UserInterface
   # List the files from a directory with an index number so it can be selected
   def user_selection(file_information)
     key        = "root"                                                      # linux support only for now
-#    file_break = ""                                                        # save for "break"
     index      = 0                                                          # for user selection
     number      = 0                                                          # for selection from table  
     ui          = {} 
@@ -137,21 +135,22 @@ class UserInterface
     3. Delete all not excluded text
     4. Range functions
     5. Write to file
-    6. Exit
+    6. Return
       DELIMITER
     unless $mode == "test"                                                  # global test switch
       ARGF.each_line do |selection|                                          
         @selection = selection.chomp!.to_i
-        break if (0..6).include?(@selection)                       
+        break if (0..6).include?(@selection)                      
       end
     else
       begin
         @selection = ARGF.readline
+        p "here #{$_.chomp}"
         rescue EOFError
-        exit
+        p "Hit end of file"
+        return
       end
     end
-    p @selection.chomp.to_s
     case @selection.chomp.to_s
       when "1"
         user_pattern                                                          # update search_history 
@@ -171,6 +170,9 @@ class UserInterface
       when "5"
         path = user_prompt_write  
       when "6"
+        return text_area  
+      when "7"
+        puts("Exiting")
         exit  
       else
       puts("Exiting")
@@ -260,7 +262,7 @@ class UserInterface
       ARGF.each_line do |selection_range|                                          
         selection_range = selection_range.chomp!
         @selection_split = selection_range.split(" ")                              # check if selection is valid  
-        break if (0..9).include?(@selection_split[0].to_i)                         # index reused from above  
+        break if (0..9).include?(@selection_split[0].to_i)                        # index reused from above  
       end                              
     else
       selection = ARGF.readline
