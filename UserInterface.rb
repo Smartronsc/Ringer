@@ -145,9 +145,7 @@ class UserInterface
     else
       begin
         @selection = ARGF.readline
-        p "here #{$_.chomp}"
         rescue EOFError
-        p "Hit end of file"
         return
       end
     end

@@ -28,7 +28,7 @@ class TestRing < Test::Unit::TestCase
                 p "Test pattern is: #{pattern}"  
                 assert(pattern == "rs", ":user_pattern in test_ring got #{pattern} so something about the test commands changed")
     text_area  = @text_processor.send(:text_exclude, text_lines)
-    #            text_area.each { |ta| p ta }
+    #          text_area.each { |ta| p ta }
                 assert(text_area[14] == ["before", 4], "Failed 0010 UserInterface::text_exclude")
                 assert(text_area[15] == ["text", "15 r s t u v rstuv line1"], "Failed 00020 UserInterface::text_exclude")
     while                                                      
@@ -69,7 +69,7 @@ class TestRing < Test::Unit::TestCase
   end
   
   def test_ring0200
-    puts "Processing /home/brad/runner/control0200 for test of TextProcessor::text_mixer"
+    puts "Processing /home/brad/runner/control0200 for test of TextProcessor::text_mixer_include"
     ARGV.push("/home/brad/runner/control0200")
     file_name  = @user_interface.send(:user_file_read)
     text_lines = @file_manager.send(:file_directory, "/home/brad/runner/testdata")
@@ -86,29 +86,35 @@ class TestRing < Test::Unit::TestCase
     while                                                        
     text_area  = @user_interface.send(:user_display, text_area) # Exit is contained in UserInterface::user_prompt_options 
     #          text_area.each { |ta| p ta }
-                puts "\nTest is to include lines from 2 to 16 using pattern '4' in TextProcessor::text_mixer_include" 
+                puts "\nTest is to include lines from 2 to 16 in TextProcessor::text_mixer_include" 
                 assert(text_area[3] == ["text", " 3 h i j k l hijkl line0"], "Failed 0250 TextProcessor::text_mixer_include")
                 assert(text_area[16] == ["text", "16 a b c d e abcde line1"], "Failed 00260 TextProcessor::text_mixer_include")
                 assert(text_area[23] == ["before", 7], "Failed 0270 TextProcessor::text_mixer_include")
     end
   end
-=begin
-      if ta[0] == @line_start                                          # start of exclusion
-        if @line_start == @block_prior_index || @line_start == @block_prior_index+1 # continues existing exclude
-          if @line_end >= @block_end_index - @block_end_count          # exclude overlaps two existing excludes
-            if @line_start == @block_prior_index                        # overlays control
-              @exclude_count = ((@block_end_index) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
-            else                                                        # adjacent to contorl
-              @exclude_count = ((@block_end_index+1) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
-              p "a #{@exclude_count}"
-            end
-            @new_text_area.store(ta[0]-1, ["before", @exclude_count])    # new exclude count
-          else
-            @exclude_count = @line_end+1 - @line_start + @block_prior_count
-            @new_text_area.store(ta[0]-1, ["before", @exclude_count])    # new exclude count
-                    p "b #{@exclude_count}"
-          end      
-        end                  
-      end 
-=end
+  
+  def test_ring0300
+    puts "Processing /home/brad/runner/control0300 for test of TextProcessor::text_mixer_include"
+    ARGV.push("/home/brad/runner/control0300")
+    file_name  = @user_interface.send(:user_file_read)
+    text_lines = @file_manager.send(:file_directory, "/home/brad/runner/testdata")
+    pattern    = @user_interface.send(:user_pattern)
+                p "Test pattern is: #{pattern}"  
+                assert(pattern == "abc", ":user_pattern in test_ring got #{pattern} so something about the test commands changed")
+    text_area  = @text_processor.send(:text_exclude, text_lines)
+    #          text_area.each { |ta| p ta }
+                assert(text_area[1] == ["text", " 1 a b c d e abcde line0 zero start"], "Failed 00300 UserInterface::text_exclude")
+                assert(text_area[5] == ["before", 4], "Failed 0310 TextProcessor::text_exclude")
+                assert(text_area[36] == ["text", "36 a b c d e abcde line3"], "Failed 00320 UserInterface::text_exclude")
+                assert(text_area[40] == ["after", 4], "Failed 00330 UserInterface::text_exclude") 
+    while                                                        
+    text_area  = @user_interface.send(:user_display, text_area) # Exit is contained in UserInterface::user_prompt_options 
+              text_area.each { |ta| p ta }
+                puts "\nTest is to exclude additional lines from 6 to 23 in TextProcessor::text_mixer_exclude" 
+                assert(text_area[3] == ["text", " 3 h i j k l hijkl line0"], "Failed 0250 TextProcessor::text_mixer_exclude")
+                assert(text_area[16] == ["text", "16 a b c d e abcde line1"], "Failed 00260 TextProcessor::text_mixer_exclude")
+                assert(text_area[23] == ["before", 7], "Failed 0270 TextProcessor::text_mixer_exclude")
+    end
+  end
+
 end
