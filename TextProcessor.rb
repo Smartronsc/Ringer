@@ -138,28 +138,19 @@ class TextProcessor
   # leaving out the range of lines to be excluded.
   def text_mixer_exclude
     exclude_count = 0
-    amount = @line_end - @line_start
-     stop_at = @line_start + amount
-     p "amount #{amount} at #{@line_start} stop at #{stop_at}"
-     p "line start          #{@line_start}"
-     p "line end            #{@line_end}"
-     p "text end            #{@text_end}"
-     p "block prior index  #{@block_prior_index}"
-     p "block prior count  #{@block_prior_count}"
-     p "block start index  #{@block_start_index}"
-     p "block end index    #{@block_end_index}"
-     p "block end count    #{@block_end_count}"
-     p "block first        #{@block_first}"
-     p "block last          #{@block_last}"
-      
-    exclude_count = @block_end_index+1 - @line_start + @block_prior_count if @line_start == @block_prior_index || @line_start == @block_prior_index+1                                            
     @text_area.each do |ta| 
       @new_text_area.store(ta[0], ta[1])                if ta[0] < @line_start                    # copy these over as usual                                         
       @new_text_area.store(ta[0], ["fill", ""])         if (@line_start..@line_end).cover?(ta[0]) # exclude these as requested                          
       @new_text_area.store(ta[0], ta[1])                if ta[0] > @line_end                      # copy these over as usual    
     end 
-    @new_text_area.store(@block_prior_index, ["fill", ""]) if @line_start == @block_prior_index || @line_start == @block_prior_index+1
-    @new_text_area.store(@block_end_index, ["before", exclude_count])
+    if @line_start == @block_prior_index || @line_start == @block_prior_index+1                   # start on block prior or just after
+      exclude_count = @block_end_index+1 - @line_start + @block_prior_count
+      @new_text_area.store(@block_prior_index, ["fill", ""])                                      # overlay old block prior 
+      @new_text_area.store(@block_end_index, ["before", exclude_count])
+    elsif @block_end_index == @text_lines.length                                                  # excludes runs to end
+      exclude_count = @block_end_index+1 - @line_start  
+      @new_text_area.store(@block_end_index, ["before", exclude_count])
+    end
     return @new_text_area
   end
   
