@@ -151,52 +151,15 @@ class TextProcessor
      p "block end count    #{@block_end_count}"
      p "block first        #{@block_first}"
      p "block last          #{@block_last}"
-     @new_text_area.each { |ta| p ta }
-    @text_area.each do |ta|
-      @new_text_area.store(ta[0], ta[1])if ta[0] < @line_start
-      if ta[0] == @line_start                                          # start of exclusion
-        if @line_start == @block_prior_index # continues existing exclude
-          if @line_end >= @block_end_index - @block_end_count          # exclude overlaps two existing excludes
-            if @line_start == @block_prior_index                        # overlays control
-              exclude_count = ((@block_end_index) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
-            else                                                        # adjacent to control
-              exclude_count = ((@block_end_index+1) - @line_end) + ((@line_end+1) - @line_start) + @block_prior_count
-            end
-            @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count
-          else
-            exclude_count = @line_end+1 - @line_start + @block_prior_count
-          exclude_count = @block_start_index - @line_start 
-            @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count      
-          end
-        else   
-          @new_text_area.store(ta[0]-1, ["before", @block_prior_index])      # new exclude count
-        end
-      end
-      #
-      # Need to add fill and write text until @line_start
-      #
-      if (@line_start..@line_end).cover?(ta[0])                        # in range?
-        ta1 = ta[1]                                                    # get [type, data]
-        if ta1[0] == "text"
-          @new_text_area.store(ta[0], ta[1])
-        end
-      end   
-      if ta[0] > @line_end
-        if @line_end < @block_end_index - @block_end_count              # end exclude does not overlap
-          if @line_start == @block_prior_index + 1                      # first exclude joins existing exclude
-            exclude_count = ((@line_end+1) - @line_start) + @block_prior_count
-            @new_text_area.store(ta[0]-1, ["before", exclude_count])    # new exclude count
-          else
-            exclude_count = ((@line_end+1) - @line_start)
-            @new_text_area.store(ta[0]-1, ["before", exclude_count])    # calculate new exclude count
-          end
-        end
-        if @line_end >= @block_end_index - @block_end_count            # exclude overlaps end exclude  
-          @line_end = @block_end_index
-        end
-        text_write_area(@line_end+1, @text_end)                        # include these lines
-      end
-    end  
+      
+    exclude_count = @block_end_index+1 - @line_start + @block_prior_count if @line_start == @block_prior_index || @line_start == @block_prior_index+1                                            
+    @text_area.each do |ta| 
+      @new_text_area.store(ta[0], ta[1])                if ta[0] < @line_start                    # copy these over as usual                                         
+      @new_text_area.store(ta[0], ["fill", ""])         if (@line_start..@line_end).cover?(ta[0]) # exclude these as requested                          
+      @new_text_area.store(ta[0], ta[1])                if ta[0] > @line_end                      # copy these over as usual    
+    end 
+    @new_text_area.store(@block_prior_index, ["fill", ""]) if @line_start == @block_prior_index || @line_start == @block_prior_index+1
+    @new_text_area.store(@block_end_index, ["before", exclude_count])
     return @new_text_area
   end
   
