@@ -36,7 +36,7 @@ class UserInterface
       user_pattern                                                        # update search_history
       arguments = [@file, "r"]
       text_lines = @file_manager.send(:file_open, *arguments)              # open for read
-      @text_processor.send(:text_exclude, text_lines)                      # exclude 
+      @text_processor.send(:text_include, text_lines)                      # exclude 
       return @file
     end
   end 
@@ -90,7 +90,7 @@ class UserInterface
         user_pattern                                                          # update search_history 
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it 
-        @text_processor.send(:text_exclude, text_lines)                        # additional excludes  
+        @text_processor.send(:text_include, text_lines)                        # additional excludes  
       when "2"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
@@ -98,7 +98,7 @@ class UserInterface
       when "3"
         current_file = @file_manager.send(:file_history_current)              # get the current file
         text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_processor.send(:text_delete_nx, text_lines)                      # delete all non excluded lines  
+        @text_processor.send(:text_delete_in, text_lines)                      # delete all non excluded lines  
       when "4"
         user_prompt_ranges(text_area, text_lines)    
       when "5"

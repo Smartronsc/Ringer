@@ -181,14 +181,14 @@
   <span class="ruby-comment">#            $search_history[&quot;#{index}&quot;] = &quot;#{@pattern}&quot;                  store it for TextProcessor class </span>
   <span class="ruby-comment">#</span>
   <span class="ruby-comment">#                                                                         text_area internally maps the displayed result   </span>
-  <span class="ruby-identifier">text_area</span> =  <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_exclude</span>, <span class="ruby-identifier">text_lines</span>)
+  <span class="ruby-identifier">text_area</span> =  <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_include</span>, <span class="ruby-identifier">text_lines</span>)
                <span class="ruby-keyword">while</span>                                                      <span class="ruby-comment"># Exit is contained in def user_prompt_options(text_area)  </span>
   <span class="ruby-identifier">text_area</span> =  <span class="ruby-ivar">@user_interface</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:user_display</span>, <span class="ruby-identifier">text_area</span>)             <span class="ruby-comment"># Each option below displays the text_area returned</span>
                <span class="ruby-keyword">end</span> 
                
                <span class="ruby-identifier">p</span> <span class="ruby-identifier">text_area</span>                                                 
   <span class="ruby-comment">#            user_prompt_options()                                               after original exclude display is presented other options are provided:</span>
-  <span class="ruby-comment">#            @text_processor.send(:text_exclude, text_lines)              additional excludes</span>
+  <span class="ruby-comment">#            @text_processor.send(:text_include, text_lines)              additional excludes</span>
   <span class="ruby-comment">#            @text_processor.send(:text_delete_x, text_lines)              delete all excluded lines </span>
   <span class="ruby-comment">#            </span>
 <span class="ruby-keyword">end</span></pre>

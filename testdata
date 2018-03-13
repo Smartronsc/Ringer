@@ -15,7 +15,7 @@ class TextProcessor
   end
   
   # this builds a hash table of excluded lines
-  def text_exclude(exclude, text_lines)
+  def text_include(exclude, text_lines)
     $memory_map   = {}                                                  # display memory map
     text_area     = {}
     exclude_count =  0

@@ -360,7 +360,7 @@ is returned.</p>
     <span class="ruby-identifier">user_pattern</span>                                                        <span class="ruby-comment"># update search_history</span>
     <span class="ruby-identifier">arguments</span> = [<span class="ruby-ivar">@file</span>, <span class="ruby-string">&quot;r&quot;</span>]
     <span class="ruby-identifier">text_lines</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">arguments</span>)              <span class="ruby-comment"># open for read</span>
-    <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_exclude</span>, <span class="ruby-identifier">text_lines</span>)                      <span class="ruby-comment"># exclude </span>
+    <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_include</span>, <span class="ruby-identifier">text_lines</span>)                      <span class="ruby-comment"># exclude </span>
     <span class="ruby-keyword">return</span> <span class="ruby-ivar">@file</span>
   <span class="ruby-keyword">end</span>
 <span class="ruby-keyword">end</span></pre>
@@ -420,7 +420,7 @@ Now addition features are provided.</p>
         <span class="ruby-identifier">user_pattern</span>                                                          <span class="ruby-comment"># update search_history </span>
         <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
         <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it </span>
-        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_exclude</span>, <span class="ruby-identifier">text_lines</span>)          <span class="ruby-comment"># additional excludes  </span>
+        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_include</span>, <span class="ruby-identifier">text_lines</span>)          <span class="ruby-comment"># additional excludes  </span>
       <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;2&quot;</span>
         <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
         <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
@@ -428,7 +428,7 @@ Now addition features are provided.</p>
       <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;3&quot;</span>
         <span class="ruby-identifier">current_file</span> = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_history_current</span>)              <span class="ruby-comment"># get the current file</span>
         <span class="ruby-identifier">text_lines</span>  = <span class="ruby-ivar">@file_manager</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:file_open</span>, <span class="ruby-identifier">current_file</span>)            <span class="ruby-comment"># open it</span>
-        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_delete_nx</span>, <span class="ruby-identifier">text_lines</span>)         <span class="ruby-comment"># delete all non excluded lines  </span>
+        <span class="ruby-ivar">@text_area</span> = <span class="ruby-ivar">@text_processor</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:text_delete_in</span>, <span class="ruby-identifier">text_lines</span>)         <span class="ruby-comment"># delete all non excluded lines  </span>
       <span class="ruby-keyword">when</span> <span class="ruby-string">&quot;4&quot;</span>
 <span class="ruby-comment">#      user_display(text_area)</span>
       <span class="ruby-ivar">@text_area</span> = <span class="ruby-identifier">user_prompt_ranges</span>(<span class="ruby-identifier">text_area</span>, <span class="ruby-identifier">text_lines</span>)    

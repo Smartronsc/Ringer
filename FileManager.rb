@@ -165,7 +165,7 @@ class FileManager
     end
     unless $mode == "test"                                                        # global test switch
       ARGF.each_line do |selection|                                                    
-        @selection = file.chomp! 
+#        @selection = file.chomp! 
         number = selection.chomp!.to_i
         break if (0..index).include?(number.to_i)                            # index reused from above  
       end

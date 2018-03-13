@@ -4,14 +4,15 @@ class UserInterface
     @file_manager  = FileManager.new 
     @text_processor = TextProcessor.new
     @file_name = ""                                        
-    @selection = ""
   end
+  
   
   # Regexp pattern matching is used for the line exclude function.
   # Here the pattern is requested and stored in a global history file.
   # Currently up to 9 search patterns can be stored for basic support.
   # The current search pattern is returned.
   def user_pattern
+#=begin
     puts "Pattern to find in a line:\n "
     pattern = ARGF.readline
     @pattern = pattern.chomp!                                                
@@ -24,6 +25,7 @@ class UserInterface
         break
       end
     end
+#=end
     return @pattern
   end
   
@@ -46,8 +48,6 @@ class UserInterface
         puts "-------- -------------------------------------------------------- #{action[1]} lines excluded ----------------------------------------------------"
       end 
     end 
-    selection = user_prompt_options(text_area)
-    return selection
   end
 
   # This is the start of the UX where we ask for a file or the selection of a file for input.
@@ -58,6 +58,7 @@ class UserInterface
   def user_file_read
     selection = ""
     file_information = {}
+#=begin      
     puts 'Enter file name or "enter" for directory' 
     unless $mode == "test"                                                        # global test switch
       ARGF.each_line do |file|                                                    
@@ -80,6 +81,8 @@ class UserInterface
         @file_name = user_selection(file_information)
       end
     end
+#=end
+#@file_name = "/home/brad/runner/testdata"
     return @file_name
   end
   # List the files from a directory with an index number so it can be selected
@@ -120,64 +123,44 @@ class UserInterface
   end
 
   # Everything up until this point has been assumed to be an exclude request.
-  # Now addition features are provided.
-  #  1. Include additional search pattern
-  #  2. Delete all excluded text        
-  #  3. Delete all not excluded text    
-  #  4. Range functions                  
-  #  5. Write to file  
-  #  6. Exit              
-  # These are the initial fundamental quick look options 
+  # These are the fundamental options 
+  #  1. Additional include pattern
+  #  2. Additional exclude pattern
+  #  3. Delete all included text
+  #  4. Delete all excluded text            
+  #  5. Range functions                  
+  #  6. Write to file  
+  #  7. Exit              
+  
   def user_prompt_options(text_area)
     puts <<-DELIMITER
-    1. Include additional search pattern
-    2. Delete all excluded text
-    3. Delete all not excluded text
-    4. Range functions
-    5. Write to file
-    6. Return
+    1. Additional include pattern
+    2. Additional exclude pattern
+    3. Delete all included text
+    4. Delete all excluded text
+    5. Range functions
+    6. Write to file
+    7. Exit
       DELIMITER
+#=begin
     unless $mode == "test"                                                  # global test switch
-      ARGF.each_line do |selection|                                          
-        @selection = selection.chomp!.to_i
-        break if (0..6).include?(@selection)                      
+      ARGF.each_line do |selection| 
+        @selection = selection.chomp!
+        break if ("0".."6").include?(@selection)    
       end
     else
       begin
         @selection = ARGF.readline
+        @selection.chomp!.to_s 
         rescue EOFError
-        return
+        return @selection
       end
     end
-    case @selection.chomp.to_s
-      when "1"
-        user_pattern                                                          # update search_history 
-        current_file = @file_manager.send(:file_history_current)              # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)            # open it 
-        @text_area = @text_processor.send(:text_exclude, text_lines)          # additional excludes  
-      when "2"
-        current_file = @file_manager.send(:file_history_current)              # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_area = @text_processor.send(:text_delete_x, text_lines)        # delete all excluded lines  
-      when "3"
-        current_file = @file_manager.send(:file_history_current)              # get the current file
-        text_lines  = @file_manager.send(:file_open, current_file)            # open it
-        @text_area = @text_processor.send(:text_delete_nx, text_lines)        # delete all non excluded line
-      when "4"
-        @text_area = user_prompt_ranges(text_area, text_lines)    
-      when "5"
-        path = user_prompt_write  
-      when "6"
-        return text_area  
-      when "7"
-        puts("Exiting")
-        exit  
-      else
-      puts("Exiting")
-      exit
-    end
-    return @text_area
+#=end
+#@selection = "2"
+    return @selection
   end
+
   # File output starts in the directory of the current file.
   # The assumption is one will want to keep things together or over write the current file.
   def user_prompt_write
@@ -197,7 +180,7 @@ class UserInterface
       DELIMITER
     selection = ARGF.readline
       @selection = selection.chomp! 
-      case @choice                                                              # @choice actually runs after  
+      case @choice                                                              # @choice actually runs after 
         when "3"
           @path = "#{@path}/#{@selection}"
           arguments = [@path, @text_area, "w"]
@@ -251,8 +234,9 @@ class UserInterface
     8. Move lines
     9. Write to file
     
-    Enter the action and a range or a single number amount with an "after" location
-    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included
+    Enter the action and a range or a single number amount with an "after" location.
+    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included.
+    For additional includes or excludes enter 1 or 2 followed by the search pattern.
       DELIMITER
     index = 1
     selection = ""

@@ -45,8 +45,11 @@ class TextProcessor
     @text_end    = @text_lines.length                                        # actual data length
     @text_area    = text_area                                                  # contains display area
     @area_end    = @text_area.length                                          # actual area length
-    @selection    = parameters[0]                                              # what to do
-    @line_start  = parameters[1].to_i                                        # lower boundary for line data changes
+    if parameters[0] == "1" || parameters[0] == "2"                          # 1 or 2 are string patterns
+      @selection = parameters[0]
+    else                                                                      # all others are integer ranges
+      @line_start  = parameters[1].to_i                                    # lower boundary for line data changes
+    end
     @line_end    = parameters[2].to_i                                        # upper boundary for line data changes
     @keys        = text_area.keys                                            # text_area keys are the control areas
     @block_first  = @keys.first                                                # end of text_area
@@ -88,16 +91,15 @@ class TextProcessor
       else
         @block_end_index = @text_lines.length                                # use end of file
       end
-    end  
+    end
+    @selection.to_s
     case @selection
       when "1"
         text_mixer_include
       when "2"
-        text_mixer_exclude 
-      when "3"
-        text_mixer_rdin                                                      # range delete not excluded
-      when "4"
-        text_mixer_rdex                                                      # range delete excluded  
+        @user_interface.send(:user_pattern)
+        p "Stop this!"
+        text_include(@text_lines) 
       when "5"
         @text_processor.send(:text_copy, text_area, text_lines, @arguments)  # copy some lines 
       when "6"
@@ -108,24 +110,12 @@ class TextProcessor
     end 
   end
   
-  # The text area is the "memory" map used to build the display logged to console.
-  # This gets called out of the various formatter to write a line from memory to the display. 
-  # Format is typically: [23, ["fill", ""]] or [24, ["before", 13]] 
-  def text_write_area(from, to)
-    @text_area.each { |ta| @new_text_area.store(ta[0], ta[1])  if (from..to).cover?(ta[0]) }
-  end
-  
-  # The text lines area is the copy of the original file read in from disk.
-  # All this does is write from the text lines area to the display when requested
-  # by formatters that are restoring excluded lines.
-  # Format is: [25, ["text", "25 r s t u v rstuv line2"]]
-  def text_write_lines(from, to)
-    @text_lines.each { |tl|  @new_text_area.store(tl[0]+1, ["text", tl[1]]) if (from..to).cover?(tl[0]) }
-  end
-  
-  # This includes more lines in text_area for 1. Include additional lines
+
+  # 1. Include additional lines.
   # It runs through text_area including new lines as specified.
+  # test_ring0100 is the test case.
   def text_mixer_include
+    p "text_mixer_include"
     @text_area.each { |ta| @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start }  
     text_write_lines(@line_start-1, @line_end-1) 
     @new_text_area.store(@block_end_index, ["before", @block_end_index - @line_end])  
@@ -133,29 +123,88 @@ class TextProcessor
     return @new_text_area
   end
   
-  # This excludes more lines in text_area for 2. Exclude additional lines
+  # 2. Exclude additional lines.
   # It runs through text_area excluding new lines as specified simply
   # leaving out the range of lines to be excluded.
+  # test_ring0200 is the test case.
   def text_mixer_exclude
+    p "text_mixer_exclude"
+    @store_lines = {}
+    @text_lines.each do |tl|
+      found = false 
+      tl1 = tl[1]
+      $search_history.to_h.each_pair do |symbol, pattern|                                        # get the current search patterns
+        found = true if /#{Regexp.escape(pattern)}/.match(tl1) unless pattern == ""
+      end
+      @store_lines.store(tl[0], tl[1]) if found 
+      p @store_lines if found
+    end
     exclude_count = 0
-    @text_area.each do |ta| 
-      @new_text_area.store(ta[0], ta[1])                if ta[0] < @line_start                    # copy these over as usual                                         
-      @new_text_area.store(ta[0], ["fill", ""])         if (@line_start..@line_end).cover?(ta[0]) # exclude these as requested                          
-      @new_text_area.store(ta[0], ta[1])                if ta[0] > @line_end                      # copy these over as usual    
-    end 
-    if @line_start == @block_prior_index || @line_start == @block_prior_index+1                   # start on block prior or just after
-      exclude_count = @block_end_index+1 - @line_start + @block_prior_count
-      @new_text_area.store(@block_prior_index, ["fill", ""])                                      # overlay old block prior 
-      @new_text_area.store(@block_end_index, ["before", exclude_count])
-    elsif @block_end_index == @text_lines.length                                                  # excludes runs to end
-      exclude_count = @block_end_index+1 - @line_start  
-      @new_text_area.store(@block_end_index, ["before", exclude_count])
+#    @text_area.each { |ta| p ta }
+    @text_area.each do |ta|
+      found = false 
+#      @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start
+      $search_history.to_h.each_pair do |symbol, pattern|                                        # get the current search patterns
+        found = true if /#{Regexp.escape(pattern)}/.match(ta1[1]) unless pattern == ""
+      end    
+      if found                                                                                    # can not be found if excluded
+        @new_text_area.store(ta[0] - 1, ["before", exclude_count]) if exclude_count > 0
+        exclude_count = 0  
+        if ta[0] <= @block_prior_index - @block_prior_count                                                
+          exclude_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+        elsif ta[0] == @block_prior_index - @block_prior_count                                      # start just before block prior
+          @block_prior_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+        elsif ta[0] == @block_prior_index + 1                                                    # start just after block prior
+          @block_prior_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+          @block_prior_index += 1
+          @new_text_area.store(@block_prior_index, ["before", @block_prior_count])
+        elsif ta[0] == @block_prior_index - @block_prior_count                                # start just before block prior
+          @block_prior_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+        elsif ta[0] == @block_end_index + 1                                                      # start just after block end
+          @block_end_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+          @block_end_index += 1
+          @new_text_area.store(@block_end_index, ["before", @block_end_count])
+        elsif ta[0] > @block_end_index                                                
+          exclude_count += 1
+          @new_text_area.store(@ta[0], ["fill", ""])
+        elsif ta[0] == text_lines.length
+          exclude_count += 1                                                
+          @new_text_area.store(ta[0], ["after", exclude_count])
+        end
+      end
     end
     return @new_text_area
   end
   
-  # Request is for all excluded lines to be deleted from the display
-  def text_delete_x(text_lines)
+  # 3. Delete all included text
+  # Request is for all included lines to be deleted from the display.
+  # test_ring0300 is the test case.
+  def text_delete_in(text_lines)
+    p "text_delete_in"
+    @user_interface = UserInterface.new
+    text_area    = {}
+    @line_actual = -1
+    not_found    = true    
+    text_lines.each do |line_num, text|                                # read the file line by line
+      $search_history.to_h.each_pair do |symbol, pattern|              # get the current search patterns
+        not_found = false if /#{Regexp.escape(pattern)}/.match(text) unless pattern == ""
+      end
+      text_area.store(line_num+1, ["text", text]) if not_found        # write out this line if not found
+      not_found = true
+    end 
+    return text_area 
+  end
+  
+  # 4. Delete all excluded text
+  # Request is for all excluded lines to be deleted from the display.
+  # test_ring0400 is the test case.
+  def text_delete_ex(text_lines)
+    p "text_delete_ex"
     @user_interface = UserInterface.new
     text_area    = {}
     @line_actual = -1
@@ -169,26 +218,11 @@ class TextProcessor
     end 
     return text_area 
   end
-  
-  # Request is for all not excluded lines to be deleted from the display
-  def text_delete_nx(text_lines)
-    @user_interface = UserInterface.new
-    text_area    = {}
-    @line_actual = -1
-    not_found    = true    
-    text_lines.each do |line_num, text|                                # read the file line by line
-      $search_history.to_h.each_pair do |symbol, pattern|              # get the current search patterns
-        not_found = false if /#{Regexp.escape(pattern)}/.match(text) unless pattern == ""
-      end
-      text_area.store(line_num+1, ["text", text]) if not_found # write out this line if not found
-      not_found = true
-    end 
-    return text_area 
-  end
-
-  # 3. Delete included lines
-  # Request is for a range of lines to be deleted if included in the display
+  # 3. Delete included lines in range.
+  # Request is for a range of lines to be deleted if included in the display.
+  # test_ring0x00 is the test case.
   def text_mixer_rdin
+    p "text_mixer_rdin"
     @exclude_count = 0
     @deleted_count = 0
     @text_area.each do |ta|
@@ -214,9 +248,10 @@ class TextProcessor
     return @new_text_area
   end
   
-  # 4. Delete excluded lines
+  # 4. Delete excluded lines in range.
   # Request is for a range of lines to be deleted if excluded from the display
   def text_mixer_rdex
+    p "text_mixer_rdex"
     @exclude_count = 0
     @text_area.each do |ta|
       @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start        # copy to new text area
@@ -225,20 +260,20 @@ class TextProcessor
         if ta1[0] == "text"
           @new_text_area.store(ta[0], ta[1])
         end
-      end   
+      end  
       @new_text_area.store(ta[0], ["fill", ""]) if (@line_end...@block_end_index).cover?(ta[0])                                                                                    
       if ta[0] == @block_end_index
-        if @line_end <= @block_end_index - @block_end_count             # end exclude does not overlap
+        if @line_end <= @block_end_index - @block_end_count            # end exclude does not overlap
           excluded_count = @block_end_index - @line_end
-          @new_text_area.store(ta[0], ["before", excluded_count])       # new exclude count
+          @new_text_area.store(ta[0], ["before", excluded_count])      # new exclude count
         else                                                            # end exclude does overlap  
           excluded_count = (@block_end_index - @line_end)
-          excluded_count += 1 if @block_end_index == @line_end           # still counts as a line
+          excluded_count += 1 if @block_end_index == @line_end          # still counts as a line
           @new_text_area.store(ta[0], ["before", excluded_count])  
         end
       end
       if ta[0] > @block_end_index
-        text_write_area(@block_end_index + 1, @text_end)                 # include these lines
+        text_write_area(@block_end_index + 1, @text_end)                # include these lines
       end
     end
     return @new_text_area
@@ -266,7 +301,7 @@ class TextProcessor
   # * Everything is counted and excluded until a match is found.
   # * At that point the excluded count is written and text follows.
   # This logic repeats until the "after count is written if required.
-  def text_exclude(text_lines)
+  def text_include(text_lines)
     @text_end      = text_lines.length                              # actual data length used everywhere
     @text_area      = {}
     @exclude_count = 0
@@ -289,7 +324,7 @@ class TextProcessor
         @text_area.store(@line_number+1, ["fill", ""]) unless @line_number == @text_end # line position
         @exclude_count += 1 if @line_number == @text_end                  # handle single excluded last line
       end 
-      @exclude_count += 1 unless @found # || @line_number == @text_end-1  # if no match in this line
+      @exclude_count += 1 unless @found 
       @found = false
     end
     if @exclude_count > 0 
@@ -299,4 +334,25 @@ class TextProcessor
     return @text_area
   end
 
+  # The text area is the "memory" map used to build the display logged to console.
+  # This gets called out of the various formatter to write a line from memory to the display. 
+  # Format is typically: [23, ["fill", ""]] or [24, ["before", 13]] 
+  def text_write_area(from, to)
+    @text_area.each { |ta| @new_text_area.store(ta[0], ta[1])  if (from..to).cover?(ta[0]) }
+  end
+  
+  # The text lines area is the copy of the original file read in from disk.
+  # All this does is write from the text lines area to the display when requested
+  # by formatters that are restoring excluded lines.
+  # Format is: [25, ["text", "25 r s t u v rstuv line2"]]
+  def text_write_lines(from, to)
+    @text_lines.each { |tl|  @new_text_area.store(tl[0]+1, ["text", tl[1]]) if (from..to).cover?(tl[0]) }
+  end
+
+def text_exclude
+  p "text_exclude"
+  @new_text_area.store(0, ["text", "Not yet implemented"])
+  return @new_text_area
+end
+  
 end # class TextProcessor
