@@ -12,11 +12,17 @@ class UserInterface
   # Currently up to 9 search patterns can be stored for basic support.
   # The current search pattern is returned.
   def user_pattern
-#=begin
-    puts "Pattern to find in a line:\n "
-    pattern = ARGF.readline
-    @pattern = pattern.chomp!                                                
-    @pattern = 'lines' if pattern == ""                                        # default for development
+    pattern = ""
+    unless $mode == "test" 
+      puts "Pattern to find in a line:\n "# global test switch
+      ARGF.each_line do |selection|                                                    
+        @pattern = selection.chomp!.to_i
+        break unless @pattern == ""
+      end
+    else
+      pattern = ARGF.readline
+      @pattern = pattern.chomp! 
+    end
     # save this search pattern in the next unused search history entry
     search_history = $search_history.to_h
     search_history.each_pair do |index, pattern|
@@ -25,7 +31,6 @@ class UserInterface
         break
       end
     end
-#=end
     return @pattern
   end
   
@@ -58,7 +63,7 @@ class UserInterface
   def user_file_read
     selection = ""
     file_information = {}
-#=begin      
+=begin      
     puts 'Enter file name or "enter" for directory' 
     unless $mode == "test"                                                        # global test switch
       ARGF.each_line do |file|                                                    
@@ -81,8 +86,8 @@ class UserInterface
         @file_name = user_selection(file_information)
       end
     end
-#=end
-#@file_name = "/home/brad/runner/testdata"
+=end
+@file_name = "/home/brad/runner/testdata"
     return @file_name
   end
   # List the files from a directory with an index number so it can be selected
@@ -122,44 +127,6 @@ class UserInterface
     end
   end
 
-  # Everything up until this point has been assumed to be an exclude request.
-  # These are the fundamental options 
-  #  1. Additional include pattern
-  #  2. Additional exclude pattern
-  #  3. Delete all included text
-  #  4. Delete all excluded text            
-  #  5. Range functions                  
-  #  6. Write to file  
-  #  7. Exit              
-  
-  def user_prompt_options(text_area)
-    puts <<-DELIMITER
-    1. Additional include pattern
-    2. Additional exclude pattern
-    3. Delete all included text
-    4. Delete all excluded text
-    5. Range functions
-    6. Write to file
-    7. Exit
-      DELIMITER
-#=begin
-    unless $mode == "test"                                                  # global test switch
-      ARGF.each_line do |selection| 
-        @selection = selection.chomp!
-        break if ("0".."6").include?(@selection)    
-      end
-    else
-      begin
-        @selection = ARGF.readline
-        @selection.chomp!.to_s 
-        rescue EOFError
-        return @selection
-      end
-    end
-#=end
-#@selection = "2"
-    return @selection
-  end
 
   # File output starts in the directory of the current file.
   # The assumption is one will want to keep things together or over write the current file.
@@ -208,6 +175,45 @@ class UserInterface
 #      break unless ("1".."4").include?(@selection)                            # break if a line of text is read in  
 #      break if @selection == 1 || @selection == 2                            # break as file is already set
 #    exit
+
+  end
+  # Everything up until this point has been assumed to be an exclude request.
+  # These are the fundamental options 
+  #  1. Additional include pattern
+  #  2. Additional exclude pattern
+  #  3. Delete all included text
+  #  4. Delete all excluded text            
+  #  5. Range functions                  
+  #  6. Write to file  
+  #  7. Exit              
+  
+  def user_prompt_options(text_area)
+    puts <<-DELIMITER
+    1. Additional include pattern
+    2. Additional exclude pattern
+    3. Delete all included text
+    4. Delete all excluded text
+    5. Range functions
+    6. Write to file
+    7. Exit
+      DELIMITER
+#=begin
+    unless $mode == "test"                                                  # global test switch
+      ARGF.each_line do |selection| 
+        @selection = selection.chomp!
+        break if ("0".."6").include?(@selection)    
+      end
+    else
+      begin
+        @selection = ARGF.readline
+        @selection.chomp!.to_s 
+        rescue EOFError
+        return @selection
+      end
+    end
+#=end
+#@selection = "2"
+    return @selection
   end
 
   # After the initial exclude request you may want some modifications.
@@ -224,6 +230,11 @@ class UserInterface
   # These options let you work with the data 
   def user_prompt_ranges(text_area, text_lines)
     puts <<-DELIMITER
+    
+    Range functions
+
+    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included. 
+    
     1. Include additional lines
     2. Exclude additional lines
     3. Delete included lines
@@ -233,10 +244,7 @@ class UserInterface
     7. Copy lines 
     8. Move lines
     9. Write to file
-    
-    Enter the action and a range or a single number amount with an "after" location.
-    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included.
-    For additional includes or excludes enter 1 or 2 followed by the search pattern.
+
       DELIMITER
     index = 1
     selection = ""
@@ -263,17 +271,19 @@ class UserInterface
         @selection_split[2] = range_split[1] 
       end
     end
-    unless selection.match('\.')
-      @selection_split[2] = @selection_split[1].to_i + @selection_split[2].to_i
-      @selection_split[1].to_s
-      @selection_split[2].to_s                                      
-    end
+#    unless selection.match('\.')
+#      @selection_split[2] = @selection_split[1].to_i + @selection_split[2].to_i
+#      @selection_split[1].to_s
+#      @selection_split[2].to_s 
+#      p ". #{@selection_split}"
+#    end
     if @selection_split.length < 3                                                  # check length entered
       puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
       user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
     end
     @arguments = @selection_split  
-    @text_processor.send(:text_mixer, text_area, @arguments)
+  #  @text_processor.send(:text_mixer, text_area, @arguments)
+    return @arguments
   end
   
 end # class UserInterface
