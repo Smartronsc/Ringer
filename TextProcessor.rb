@@ -112,7 +112,6 @@ class TextProcessor
   # All excluded lines are included.
   # test_ring0300 is the test case.
   def text_delete_in(text_lines)
-    p "text_delete_in"
     line_number  = 0
     text_area    = {}   
     text_lines.each do |line_num, text|                                # read the file line by line
@@ -128,14 +127,14 @@ class TextProcessor
   # 4. Delete all excluded text
   # Request is for all excluded lines to be deleted from the display.
   # test_ring0400 is the test case.
-  def text_delete_ex
-    p "text_delete_ex"   
-      @text_area.each do |ta|                             
-      unless /#{Regexp.escape("before")}/.match(ta) || /#{Regexp.escape("after")}/.match(ta)
-        text_area.store(ta[0], ["text", ta[1]])          
+  def text_delete_ex 
+      @text_area.each do |ta|  
+        ta1 = ta[1]                       
+      if /#{Regexp.escape("text")}/.match(ta1[0]) 
+        @new_text_area.store(ta[0], ta[1])          
       end
     end 
-    return text_area 
+    return @new_text_area 
   end
   
     # The big picture is there are two things in play, the text_area which is built as the first exclude display
@@ -204,9 +203,8 @@ class TextProcessor
 
   # 1. Include additional lines.
   # It runs through text_area including new lines as specified.
-  # test_ring0100 is the test case.
+  # test_ringr100 is the test case.
   def text_mixer_include(parameters)
-    p "here"
     @text_area.each { |ta| @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start } 
     @new_text_area.store(@line_start - 1, ["before", (@block_start_index - @line_start)-1 ])
     text_write_lines(@line_start-1, @line_end-1) 
@@ -221,6 +219,10 @@ class TextProcessor
   # test_ring0200 is the test case.
   def text_mixer_exclude(parameters)
     p "text_mixer_exclude"
+    @new_text_area.store(0, ["text", "Not yet implemented"])
+   return @new_text_area
+ end
+
 =begin    
     @store_lines = {}
     @text_lines.each do |tl|
@@ -272,15 +274,12 @@ class TextProcessor
       end
     end
 =end  
-     @new_text_area.store(0, ["text", "Not yet implemented"])
-    return @new_text_area
-  end
 
   # 3. Delete included lines in range.
   # Request is for a range of lines to be deleted if included in the display.
   # test_ring0x00 is the test case.
-  def text_mixer_rdin
-    p "text_mixer_rdin"
+  def text_mixer_range_include
+    p "text_mixer_range_include"
     @exclude_count = 0
     @deleted_count = 0
     @text_area.each do |ta|
@@ -308,8 +307,8 @@ class TextProcessor
   
   # 4. Delete excluded lines in range.
   # Request is for a range of lines to be deleted if excluded from the display
-  def text_mixer_rdex
-    p "text_mixer_rdex"
+  def text_mixer_range_exclude
+    p "text_mixer_range_exclude"
     @exclude_count = 0
     @text_area.each do |ta|
       @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start        # copy to new text area
@@ -336,31 +335,106 @@ class TextProcessor
     end
     return @new_text_area
   end
-  # 5. Insert lines before or after.
-  # Request is for a block of lines to be copied
-  def text_mixer_insert
-    p "text_mixer_insert"
-       @new_text_area.store(0, ["text", "Not yet implemented"])
+  # 5. Insert lines.
+  # Not really working but an interesting start
+  def text_mixer_range_insert(parameters)
+    p "text_mixer_range_insert"
+    @text_lines_index = 0
+    @text_lines.each do |tl|
+      if @line_start == tl[0] + 2
+        @text_area.store(@text_lines_index += 1, tl[1])
+        @line_start.upto(@line_end) { @text_area.store(@text_lines_index += 1, "insert") } 
+      else
+        @text_area.store(@text_lines_index += 1, tl[1])
+      end
+    end
+    text_exclude(@text_area)
+    text_mixer(@text_area, parameters)
+    return @text_area
+  end
+  # 6. Delete a block of lines
+  def text_mixer_range_delete
+    p "text_mixer_range_delete"
+    @new_text_area = {}
+    @text_area_index = 0
+    @text_area.each do |ta|
+      unless (@line_start..@line_end).cover?(ta[0])
+        p "ta[0] #{ta[0]}"
+        @new_text_area.store(@text_area_index += 1, ta[1]) 
+      end
+    end
+    @new_text_area.each { |ta| p ta }
     return @new_text_area
   end
+  # 7. Copy lines before or after.
+  # Request is for a block of lines to be copied
+  def text_mixer_range_copy
+    p "text_mixer_range_copy"
+      @new_text_area.store(0, ["text", "Not yet implemented"])
+    return @new_text_area
+  end
+  # 8. Move lines before or after.
+  # Request is for a block of lines to be moved
+  def text_mixer_range_move
+    p "text_mixer_range_move"
+      @new_text_area.store(0, ["text", "Not yet implemented"])
+    return @new_text_area
+  end
+=begin
+  @text_area.each do |ta|
+    unless @line_start == 0
+      @offset = @line_end - @line_start
+      @index = 0
+      @hold_area = {}
+      @new_text_area.store(ta[0], ta[1]) if ta[0] < @line_start        # copy to new text area
+      if (@line_start..@line_end).cover?(ta[0]) 
+        @new_text_area.store(ta[0] + @index, ["insert", ""])           # insert new lines  
+        @index += 1
+        ta1 = ta[1]
+        @hold_area.store(ta[0] + @offset, [ta[1]]) if ta1[0] == "before" || ta1[0] == "after" 
+        @hold_area.store(ta[0] + @offset, [ta[1]]) if ta1[0] == "text"
+      end
+      @block_end_index += @index
+      if ta[0] == @block_end_index
+        if @line_end <= @block_end_index - @block_end_count            # end exclude does not overlap
+          excluded_count = @block_end_index - @line_end
+          @new_text_area.store(ta[0], ["before", excluded_count])      # new exclude count
+        else                                                            # end exclude does overlap 
+          excluded_count = (@block_end_index - @line_end)
+          excluded_count += 1 if @block_end_index == @line_end          # still counts as a line
+          @new_text_area.store(ta[0], ["before", excluded_count])  
+        end
+      end
+      if ta[0] > @block_end_index
+        text_write_area(@block_end_index + 1, @text_end)                # include these lines
+      end
+    else
+      @index = 1
+      @line_end.to_i.downto(1) { |line| @new_text_area.store(@index += 1, ["insert", ""]) }
+      @index.upto(@line_end) { |index| @new_text_area.store(index + @index, [ta[1]]); }
+    end
+  end
+  p @new_text_area
+=end
+
   # 6. Move lines before or after.
   # Request is for a block of lines to be moved
-  def text_mixer_delete
-    p "text_mixer_delete"
+  def text_mixer_range_delete
+    p "text_mixer_range_delete"
        @new_text_area.store(0, ["text", "Not yet implemented"])
     return @new_text_area
   end
   # 7. Copy lines before or after.
   # Request is for a block of lines to be copied
-  def text_mixer_copy
-    p "text_mixer_copy"
+  def text_mixer_range_copy
+    p "text_mixer_range_copy"
        @new_text_area.store(0, ["text", "Not yet implemented"])
     return @new_text_area
   end
   # 8. Move lines before or after.
   # Request is for a block of lines to be moved
-  def text_mixer_move
-    p "text_mixer_move"
+  def text_mixer_range_move
+    p "text_mixer_range_move"
        @new_text_area.store(0, ["text", "Not yet implemented"])
     return @new_text_area
   end
@@ -400,8 +474,6 @@ class TextProcessor
   def text_write_lines(from, to)
     @text_lines.each { |tl|  @new_text_area.store(tl[0]+1, ["text", tl[1]]) if (from..to).cover?(tl[0]) }
   end
-
-
-
   
 end # class TextProcessor
+

@@ -5,8 +5,7 @@ class UserInterface
     @text_processor = TextProcessor.new
     @file_name = ""                                        
   end
-  
-  
+   
   # Regexp pattern matching is used for the line exclude function.
   # Here the pattern is requested and stored in a global history file.
   # Currently up to 9 search patterns can be stored for basic support.
@@ -14,9 +13,9 @@ class UserInterface
   def user_pattern
     pattern = ""
     unless $mode == "test" 
-      puts "Pattern to find in a line:\n "# global test switch
-      ARGF.each_line do |selection|                                                    
-        @pattern = selection.chomp!.to_i
+      puts "Pattern to find in a line:\n "
+      ARGF.each_line do |selection|                                                   
+        @pattern = selection.chomp!
         break unless @pattern == ""
       end
     else
@@ -30,7 +29,7 @@ class UserInterface
         $search_history["#{index}"] = "#{@pattern}"                            # store it for TextProcessor class 
         break
       end
-    end
+    end 
     return @pattern
   end
   
@@ -233,7 +232,7 @@ class UserInterface
     
     Range functions
 
-    Enter 1 5..12  for a range or 1 7 5 for the 7 lines after line 5 to be included. 
+    Enter 1 5..12  for a range to include additional lines 
     
     1. Include additional lines
     2. Exclude additional lines
@@ -251,7 +250,7 @@ class UserInterface
     unless $mode == "test"                                                        # global test switch
       ARGF.each_line do |selection_range|                                          
         selection_range = selection_range.chomp!
-        @selection_split = selection_range.split(" ")                              # check if selection is valid  
+        @selection_split = selection_range.split(" ")                              # check if selection is valid 
         break if (0..9).include?(@selection_split[0].to_i)                        # index reused from above  
       end                              
     else
@@ -271,18 +270,11 @@ class UserInterface
         @selection_split[2] = range_split[1] 
       end
     end
-#    unless selection.match('\.')
-#      @selection_split[2] = @selection_split[1].to_i + @selection_split[2].to_i
-#      @selection_split[1].to_s
-#      @selection_split[2].to_s 
-#      p ". #{@selection_split}"
-#    end
     if @selection_split.length < 3                                                  # check length entered
       puts "Format is: Selection number then Range (11..23) or Amount with 'after' number"
       user_prompt_ranges(text_area, text_lines)                                                        # ask again for input
     end
     @arguments = @selection_split  
-  #  @text_processor.send(:text_mixer, text_area, @arguments)
     return @arguments
   end
   
